@@ -1,7 +1,10 @@
-﻿var builder = WebApplication.CreateBuilder(args);
+﻿using Star.Settings;
+
+var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddSingleton<CustomerSettings>();
 
 var app = builder.Build();
 
@@ -22,7 +25,7 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=SpltSourceString}");
+    pattern: "{controller=Home}/{action=Bet}");
 
 app.Run();
 

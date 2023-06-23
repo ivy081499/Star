@@ -1,3 +1,30 @@
 ﻿@{
     ViewData["Title"] = "Splt Source String";
 }
+
+<style>
+    .source-string {
+        width: 90%;
+        height: 10em;
+    }
+</style>
+
+<script>
+    function resolveString() {
+        let value = document.getElementById("sourceString").value;
+
+        $.ajax({
+            url: "api/ResolveString",
+            method: "POST",
+            data: { value }
+        }).done(function (data) {
+            alert(data);
+        });
+    }
+</script>
+
+<div class="container">
+    <textarea class="source-string" id="sourceString">01x03</textarea>
+
+    <button onclick="resolveString()">解析</button>
+</div>

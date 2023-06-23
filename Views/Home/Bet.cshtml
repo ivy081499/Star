@@ -1,0 +1,104 @@
+﻿<div class="container text-center">
+    <div class="row">
+        <div class="col">
+            <div class="mb-3">
+                <label class="form-label">日期</label>
+                <input class="form-control" id="datepicker" type="date" />
+            </div>
+        </div>
+        <div class="col">
+            <div class="mb-3">
+                <label class="form-label">組頭</label>
+                <select class="form-control" id="bookieSelect"></select>
+            </div>
+        </div>
+        <div class="col">
+            <div class="mb-3">
+                <label class="form-label">客戶</label>
+                <select class="form-control" id="customerSelect"></select>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <textarea class="form-control" id="sourceString">01x03</textarea>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <button class="form-control" onclick="resolveString()">解析</button>
+        </div>
+    </div>
+</div>
+
+<hr class="hr" />
+
+
+@section Scripts{
+    <script>$(function () {
+            initDatepicker();
+
+            initSelect();
+
+        });
+
+        function initDatepicker() {
+            $("#datepicker").datepicker({
+                format: 'yyyy-MM-dd',
+            });
+
+            var myDate = new Date();
+            var year = myDate.getFullYear();
+            var date = myDate.getDate();
+            var month = myDate.getMonth() + 1;
+            month = month < 10 ? `0${month}` : month;
+
+            var fullDate = `${year}-${month}-${date}`;
+
+            $("#datepicker").val(fullDate);
+        }
+
+        function initSelect() {
+            $.ajax({
+                url: "api/Bet",
+                method: "GET"
+            }).done(function (data) {
+                //組頭清單
+                $.each(data.bookieList, function (index, value) {
+                    $('#bookieSelect').append($('<option>', {
+                        value: value.value,
+                        text: value.name
+                    }));
+                });
+
+                //客戶清單
+                $.each(data.customerSettings.customerList, function (index, value) {
+                    $('#customerSelect').append($('<option>', {
+                        value: value.name,
+                        text: value.name
+                    }));
+                });
+            });
+        }
+
+        function resolveString() {
+            var value = $("#sourceString").val();
+
+            $.ajax({
+                url: "api/ResolveString",
+                method: "POST",
+                data: { value }
+            }).done(function (data) {
+                if (data.isSuccess === true) {
+                    getCustomerBetList();
+                } else {
+                    alert(data.message);
+                }
+            });
+        }
+
+        function getCustomerBetList() {
+
+
+        }</script>
+}

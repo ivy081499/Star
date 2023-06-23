@@ -1,4 +1,5 @@
-﻿<div class="container text-center">
+﻿<script src="~/lib/ScriptTemplate/BetInfo.js"></script>
+<div class="container">
     <div class="row">
         <div class="col">
             <div class="mb-3">
@@ -19,86 +20,201 @@
             </div>
         </div>
     </div>
-    <div class="row mb-3">
+    <hr class="hr" />
+    <div class="row">
         <div class="col">
-            <textarea class="form-control" id="sourceString">01x03</textarea>
+            <div class="mb-3">
+                <label class="form-label">二星</label>
+                <input class="form-control" id="twoStarOdds" type="number" />
+            </div>
+        </div>
+        <div class="col">
+            <div class="mb-3">
+                <label class="form-label">三星</label>
+                <input class="form-control" id="threeStarOdds" type="number" />
+            </div>
+        </div>
+        <div class="col">
+            <div class="mb-3">
+                <label class="form-label">四星</label>
+                <input class="form-control" id="fourStarOdds" type="number" />
+            </div>
+        </div>
+        <div class="col-2">
+            <div class="mb-3">
+                <button class="btn btn-primary" type="button" onclick="bet()">下注</button>
+                <button class="btn btn-secondary" type="button" onclick="resetBet()">重設</button>
+            </div>
         </div>
     </div>
-    <div class="row mb-3">
+    <div class="row">
         <div class="col">
-            <button class="btn" onclick="resolveString()">解析</button>
+            <div class="mb-3">
+                <label class="form-label">投注內容</label>
+                <textarea class="form-control" id="sourceString">01x03</textarea>
+            </div>
+        </div>
+    </div>
+    <hr class="hr" />
+    <div class="row mb-3 text-center">
+        <div class="col">
+            <div class="mb-3">
+                <label class="form-label">車組</label>
+                <input class="form-control" id="carSetNumber" type="number" />
+            </div>
+        </div>
+        <div class="col">
+            <div class="mb-3">
+                <label class="form-label">賠率</label>
+                <input class="form-control" id="carSetOdds" type="number" />
+            </div>
+        </div>
+        <div class="col-2">
+            <div class="mb-3">
+                <button class="btn btn-primary" type="button" onclick="carSetBet()">下注</button>
+                <button class="btn btn-secondary" type="button" onclick="resetCarSet()">重設</button>
+            </div>
         </div>
     </div>
 </div>
-
 <hr class="hr" />
+<div id="betDetails">
 
+</div>
+<script>$(function () {
+        initDatepicker();
+        initSelect();
+    });
 
-@section Scripts{
-    <script>$(function () {
-            initDatepicker();
-
-            initSelect();
-
+    function initDatepicker() {
+        $("#datepicker").datepicker({
+            format: 'yyyy-MM-dd',
         });
 
-        function initDatepicker() {
-            $("#datepicker").datepicker({
-                format: 'yyyy-MM-dd',
+        setTodayDate();
+    }
+
+    function setTodayDate() {
+        var myDate = new Date();
+
+        var year = myDate.getFullYear();
+        var date = myDate.getDate();
+        var month = myDate.getMonth() + 1;
+        month = month < 10 ? `0${month}` : month;
+
+        var fullDate = `${year}-${month}-${date}`;
+
+        $("#datepicker").val(fullDate);
+    }
+
+    function initSelect() {
+        $.ajax({
+            url: "api/Bet",
+            method: "GET"
+        }).done(function (data) {
+            //組頭清單
+            $.each(data.bookieList, function (index, value) {
+                $('#bookieSelect').append($('<option>', {
+                    value: value.value,
+                    text: value.name
+                }));
             });
 
-            var myDate = new Date();
-            var year = myDate.getFullYear();
-            var date = myDate.getDate();
-            var month = myDate.getMonth() + 1;
-            month = month < 10 ? `0${month}` : month;
+            //客戶清單
+            $.each(data.customerSettings.customerList, function (index, value) {
+                $('#customerSelect').append($('<option>', {
+                    value: value.name,
+                    text: value.name
+                }));
+            });
+        });
+    }
 
-            var fullDate = `${year}-${month}-${date}`;
+    function bet() {
+        var data = {
+            betContent: $("#sourceString").val(),
+            date: $('#datepicker').val(),
+            bookie: $('#bookieSelect').val(),
+            CustomerName: $('#customerSelect').val(),
+            twoStarOdds: $('#twoStarOdds').val(),
+            threeStarOdds: $('#threeStarOdds').val(),
+            fourStarOdds: $('#fourStarOdds').val()
+        };
 
-            $("#datepicker").val(fullDate);
-        }
+        $.ajax({
+            url: "api/bet",
+            method: "POST",
+            data: data
+        }).done(function (result) {
+            if (result.isSuccess === true) {
+                alert("下注成功");
 
-        function initSelect() {
-            $.ajax({
-                url: "api/Bet",
-                method: "GET"
-            }).done(function (data) {
-                //組頭清單
-                $.each(data.bookieList, function (index, value) {
-                    $('#bookieSelect').append($('<option>', {
-                        value: value.value,
-                        text: value.name
-                    }));
+                var html = getBetInfoTemplate();
+                $('#betDetails').html(html);
+
+                $('#dateHeader').innerText = result.data.date;
+                $('#bookieText').val(result.data.bookieType);
+                $('#totalTwoStarText').val(result.data.totalTwoStar);
+                $('#totalThreeStarText').val(result.data.totalThreeStar);
+                $('#totalFourStarText').val(result.data.totalFourStar);
+                $('#totalCarSetText').val(result.data.totalCarSetStar);
+                $('#totalBetDollarsText').val(result.data.totalBetDollarsStar);
+                $('#twoStarBonusText').val(result.data.twoStarBonus);
+                $('#threeStarBonusText').val(result.data.threeStarBonus);
+                $('#fourStarBonusText').val(result.data.fourStarBonus);
+                $('#totalBonusDollarsText').val(result.data.totalBonusDollars);
+
+                //排碰
+                $.each(result.data.betInfoList, function (index, info) {
+                    var tr = createTr();
+                    tr.children[0].innerHTML = JSON.stringify(info.columnList); //todo
+                    tr.children[1].innerHTML = info.twoStarOdds;
+                    tr.children[2].innerHTML = info.threeStarOdds;
+                    tr.children[3].innerHTML = info.fourStarOdds;
                 });
 
-                //客戶清單
-                $.each(data.customerSettings.customerList, function (index, value) {
-                    $('#customerSelect').append($('<option>', {
-                        value: value.name,
-                        text: value.name
-                    }));
+                //車組
+                $.each(result.data.carSetInfoList, function (index, carSetInfo) {
+                    var tr = createTr();
+                    tr.children[0].innerHTML = carSetInfo.ballNumber;
+                    tr.children[4].innerHTML = carSetInfo.odds;
                 });
-            });
-        }
+            } else {
+                alert(data.message);
+            }
+        });
+    }
 
-        function resolveString() {
-            var value = $("#sourceString").val();
+    function createTr() {
+        var tr = document.createElement('tr');
+        var trContent = document.createElement('td');
+        var trTwoStarOdds = document.createElement('td');
+        var trThreeStarOdds = document.createElement('td');
+        var trFourStarOdds = document.createElement('td');
+        var trCarSetOdds = document.createElement('td');
 
-            $.ajax({
-                url: "api/ResolveString",
-                method: "POST",
-                data: { value }
-            }).done(function (data) {
-                if (data.isSuccess === true) {
-                    getCustomerBetList();
-                } else {
-                    alert(data.message);
-                }
-            });
-        }
+        $(tr).append(trContent);
+        $(tr).append(trTwoStarOdds);
+        $(tr).append(trThreeStarOdds);
+        $(tr).append(trFourStarOdds);
+        $(tr).append(trCarSetOdds);
+        $('#customerBetInfo').append(tr);
 
-        function getCustomerBetList() {
+        return tr;
 
+    }
 
-        }</script>
-}
+    function resetBet() {
+        setTodayDate();
+        $('#bookieSelect option')[0].selected = true;
+        $('#customerSelect option')[0].selected = true;
+        $('#twoStarOdds').val('');
+        $('#threeStarOdds').val('');
+        $('#fourStarOdds').val('');
+    }
+
+    function resetCarSet() {
+        $('#carSetNumber').val('');
+        $('#carSetOdds').val('');
+    }</script>
+

@@ -10,7 +10,7 @@ namespace Star.Helper
 
         public static Regex ResolveRegex = new Regex(@"(\d{2})+[Xx]+(.)+");
 
-        public static bool ResolveStringToColumnList(string value, out List<Column> columns)
+        public static bool CheckBetContent(string value, out List<Column> columns)
         {
             columns = new List<Column>();
 

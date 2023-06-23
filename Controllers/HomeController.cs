@@ -36,12 +36,7 @@ public class HomeController : Controller
 
     public IActionResult Bet()
     {
-        BetViewModel model = new BetViewModel()
-        {
-            CustomerSettings = _customerSettings,
-        };
-
-        return View(model);
+        return View();
     }
 
 

@@ -10,6 +10,10 @@ using Star.Settings;
 using Star.ViewModels;
 using Star.Response;
 using Star.Models;
+using Microsoft.Extensions.Caching.StackExchangeRedis;
+using Microsoft.Extensions.Caching.Distributed;
+using System.Text;
+using StackExchange.Redis;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -19,9 +23,18 @@ namespace Star.APIController
     public class BetController : Controller
     {
         private readonly CustomerSettings _customerSettings;
+        private readonly IDistributedCache _redisCache;
+        private readonly IConnectionMultiplexer _connectionMultiplexer;
+        private readonly IDatabase _database;
 
-        public BetController(CustomerSettings customerSettings)
+        public BetController(
+            CustomerSettings customerSettings,
+            IDistributedCache redisCache,
+            IConnectionMultiplexer connectionMultiplexer)
         {
+            _connectionMultiplexer = connectionMultiplexer;
+            _database = _connectionMultiplexer.GetDatabase();
+            _redisCache = redisCache; //不好用，提供的方法沒有這麼多
             _customerSettings = customerSettings;
         }
 
@@ -47,16 +60,44 @@ namespace Star.APIController
         }
 
         [HttpPost]
-        public ResponseModel<CustomerBet> Bet(BetRequestModel request)
+        public ResponseModel Bet(BetRequestModel request)
         {
 
             bool result = ResolveStringHelper.CheckBetContent(request.BetContent, out List<Column> columns);
 
             if (!result)
             {
-                return new ResponseModel<CustomerBet>() { IsSuccess = false, Message = "數入文字格式不正確", };
+                return new ResponseModel() { IsSuccess = false, Message = "數入文字格式不正確", };
             }
 
+            //todo
+            
+
+            return new ResponseModel() { IsSuccess = true, };
+
+        }
+
+        [HttpPost]
+        [Route("CarSetBet")]
+        public ResponseModel CarSetBet(CarSetRequestModel request)
+        {
+            //todo
+            return new ResponseModel() { IsSuccess = true, };
+
+        }
+
+
+        [HttpDelete]
+        public bool Delete(int id)
+        {
+            //todo
+            return true;
+        }
+
+        [HttpPost]
+        [Route("GetCustomerBet")]
+        public CustomerBet GetCustomerBet(GetCustomerBetInfoModel model)
+        {
             //todo
             List<BetInfo> betInfoList = new List<BetInfo>();
             List<Column> columnList = new List<Column>();
@@ -91,12 +132,16 @@ namespace Star.APIController
                 CarSetInfoList = carSetInfoList,
             };
 
-            return new ResponseModel<CustomerBet>()
-            {
-                IsSuccess = true,
-                Data = customerBet,
-            };
+            return customerBet;
+        }
 
+        [HttpPost]
+        [Route("Redis")]
+        public bool Redis(string data)
+        {
+            _database.StringSetAsync("yowko", "test", TimeSpan.FromSeconds(60), When.NotExists);
+
+            return true;
         }
     }
 }

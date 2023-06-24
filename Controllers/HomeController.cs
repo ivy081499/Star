@@ -40,10 +40,15 @@ public class HomeController : Controller
     }
 
 
+    public IActionResult Redis() {
+        return View();
+
+    }
+
     public IActionResult TodayBet()
     {
         TodayBetViewModel model = new TodayBetViewModel();
-       
+    //todo   
 
         return View(model);
     }

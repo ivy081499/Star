@@ -1,0 +1,15 @@
+﻿<button onclick="test()"></button>
+
+<script>function test() {
+        $.ajax({
+            url: "/api/bet/Redis",
+            method: "POST",
+            data: "test"
+        }).done(function (data) {
+            if (data === true) {
+                alert('success');
+            } else {
+                alert('error');
+            }
+        });
+    }</script>

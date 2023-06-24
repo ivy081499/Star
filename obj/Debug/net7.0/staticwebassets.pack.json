@@ -17,12 +17,8 @@
       "PackagePath": "staticwebassets/js/site.js"
     },
     {
-      "Id": "/Users/linlifan/Desktop/Star/Star/Star/wwwroot/lib/ScriptTemplate/BetInfoTemplate.js",
-      "PackagePath": "staticwebassets/lib/ScriptTemplate/BetInfoTemplate.js"
-    },
-    {
-      "Id": "/Users/linlifan/Desktop/Star/Star/Star/wwwroot/lib/ScriptTemplate/EmptyHtmlFile.html",
-      "PackagePath": "staticwebassets/lib/ScriptTemplate/EmptyHtmlFile.html"
+      "Id": "/Users/linlifan/Desktop/Star/Star/Star/wwwroot/lib/ScriptTemplate/BetInfo.js",
+      "PackagePath": "staticwebassets/lib/ScriptTemplate/BetInfo.js"
     },
     {
       "Id": "/Users/linlifan/Desktop/Star/Star/Star/wwwroot/lib/bootstrap/LICENSE",

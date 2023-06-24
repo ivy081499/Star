@@ -12,7 +12,9 @@ namespace Star.RequestModel
         public float TwoStarOdds { get; set; }
         public float ThreeStarOdds { get; set; }
         public float FourStarOdds { get; set; }
+        public int PaperNumber { get; set; }
     }
+
     public class CarSetRequestModel
     {
         public DateTime Date { get; set; }
@@ -20,6 +22,7 @@ namespace Star.RequestModel
         public string CustomerName { get; set; }
         public int Number { get; set; }
         public float Odds { get; set; }
+        public int PaperNumber { get; set; }
     }
 }
 

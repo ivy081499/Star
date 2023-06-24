@@ -1,16 +1,20 @@
-﻿using Star.Settings;
+﻿using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Caching.StackExchangeRedis;
+using Microsoft.Extensions.Configuration;
+using StackExchange.Redis;
+using Star.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddSingleton<CustomerSettings>();
-builder.Services.AddStackExchangeRedisCache(options =>
-{
-    options.Configuration = builder.Configuration.GetConnectionString("127.0.0.1:6379");
-    options.InstanceName = "RedisInstance";
-});
+//builder.Services.AddStackExchangeRedisCache(options =>
+//{
+//    options.Configuration = "localhost:6379,password=";
+//});
 
+builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect("localhost:6379,password="));
 
 
 var app = builder.Build();

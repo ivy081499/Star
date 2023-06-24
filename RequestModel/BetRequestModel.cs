@@ -20,7 +20,7 @@ namespace Star.RequestModel
         public DateTime Date { get; set; }
         public BookieType Bookie { get; set; }
         public string CustomerName { get; set; }
-        public int Number { get; set; }
+        public int CarSetNumber { get; set; }
         public float Odds { get; set; }
         public int PaperNumber { get; set; }
     }

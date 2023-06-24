@@ -30,19 +30,19 @@
     <div class="row">
         <div class="col">
             <div class="mb-3">
-                <label class="form-label">二星</label>
-                <input class="form-control" id="twoStarOdds" type="number" />
+                <label class="form-label">二星賠率</label>
+                <input class="form-control" id="twoStarOdds" type="number" value="0.2" />
             </div>
         </div>
         <div class="col">
             <div class="mb-3">
-                <label class="form-label">三星</label>
+                <label class="form-label">三星賠率</label>
                 <input class="form-control" id="threeStarOdds" type="number" />
             </div>
         </div>
         <div class="col">
             <div class="mb-3">
-                <label class="form-label">四星</label>
+                <label class="form-label">四星賠率</label>
                 <input class="form-control" id="fourStarOdds" type="number" />
             </div>
         </div>
@@ -57,7 +57,7 @@
         <div class="col">
             <div class="mb-3">
                 <label class="form-label">投注內容</label>
-                <textarea class="form-control" id="sourceString">01x03</textarea>
+                <textarea class="form-control" id="sourceString">01x03.04x05.06</textarea>
             </div>
         </div>
     </div>
@@ -84,8 +84,9 @@
     </div>
 </div>
 <hr class="hr" />
+<div class="row text-center">
+</div>
 <div id="betDetails">
-
 </div>
 <script>$(function () {
         initDatepicker();
@@ -123,7 +124,7 @@
         }
 
         $.ajax({
-            url: "api/Bet",
+            url: "/api/Bet",
             method: "GET"
         }).done(function (data) {
             //組頭清單
@@ -153,18 +154,23 @@
             twoStarOdds: $('#twoStarOdds').val(),
             threeStarOdds: $('#threeStarOdds').val(),
             fourStarOdds: $('#fourStarOdds').val(),
-            papperNumber: $('#paperNumberSelect').val()
+            paperNumber: $('#paperNumberSelect').val()
         };
 
         $.ajax({
-            url: "api/bet",
+            url: "/api/bet",
             method: "POST",
             data: data
         }).done(function (result) {
             if (result.isSuccess === true) {
                 alert("下注成功");
 
-                genertateDetailArea();
+                $('#twoStarOdds').empty();
+                $('#threeStarOdds').empty();
+                $('#fourStarOdds').empty();
+                $('#customerBet').empty();
+
+                genertateDetailArea($('#datepicker').val(), $('#customerSelect').val());
             } else {
                 alert(data.message);
             }
@@ -185,19 +191,6 @@
         $('#carSetOdds').val('');
     }
 
-    function getBetDetails() {
-        $.ajax({
-            url: "api/bet/GetCustomerBet",
-            method: "POST",
-            data: {
-                customerName: $('#customerSelect').val(),
-                date: $('#datepicker').val()
-            },
-        }).done(function (data) {
-            insertDetails(data);
-        });
-    }
-
     function carSetBet() {
         var data = {
             carSetNumber: $("#carSetNumber").val(),
@@ -205,27 +198,21 @@
             bookie: $('#bookieSelect').val(),
             customerName: $('#customerSelect').val(),
             odds: $('#carSetOdds').val(),
-            papperNumber: $('#paperNumberSelect').val()
+            paperNumber: $('#paperNumberSelect').val()
         };
 
         $.ajax({
-            url: "api/bet/CarSetBet",
+            url: "/api/bet/CarSetBet",
             method: "POST",
             data: data
         }).done(function (result) {
             if (result.isSuccess === true) {
                 alert("下注成功");
-                genertateDetailArea();
+                genertateDetailArea($("#carSetNumber").val(), $('#customerSelect').val());
             } else {
                 alert(data.message);
             }
         });
-    }
-
-    function genertateDetailArea() {
-        var html = getBetInfoTemplate();
-        $('#betDetails').html(html);
-        getBetDetails();
     }</script>
 
 

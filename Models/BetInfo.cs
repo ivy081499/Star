@@ -6,11 +6,12 @@ namespace Star.Models
     /// </summary>
 	public class BetInfo
     {
-        public int Id { get; set; }
+        public string Id { get; set; }
         public List<Column> ColumnList { get; set; }
         public float TwoStarOdds { get; set; }
         public float ThreeStarOdds { get; set; }
         public float FourStarOdds { get; set; }
+        public string BetContent  { get; set; }
     }
 
     /// <summary>
@@ -26,8 +27,8 @@ namespace Star.Models
 
     public class CarSetInfo
     {
-        public int Id { get; set; }
-        public int BallNumber { get; set; }
+        public string Id { get; set; }
+        public int carSetNumber  { get; set; }
         public float Odds { get; set; }
     }
 }

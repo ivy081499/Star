@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "x2AtMvksxce3nqIVbhiHcDwoiwxbOclIueYSKEeNVWCS5Hs6VdRqAXRBI0q3N+mzW9ttY3rHSGD4Kq1H8uwA/g==",
+  "dgSpecHash": "AjOdC5kie+6H7Q5WD+yFUMSn06PHxjIsHaaiXPnF9nI05D1FroMmQ+ZbbIB0PcjkysKXN3UjlAdzjd+xnu3EPw==",
   "success": true,
   "projectFilePath": "/Users/linlifan/Desktop/Star/Star/Star/Star.csproj",
   "expectedPackageFiles": [
@@ -14,6 +14,7 @@
     "/Users/linlifan/.nuget/packages/microsoft.typescript.msbuild/5.1.3/microsoft.typescript.msbuild.5.1.3.nupkg.sha512",
     "/Users/linlifan/.nuget/packages/microsoft.win32.registry/5.0.0/microsoft.win32.registry.5.0.0.nupkg.sha512",
     "/Users/linlifan/.nuget/packages/microsoft.win32.systemevents/5.0.0/microsoft.win32.systemevents.5.0.0.nupkg.sha512",
+    "/Users/linlifan/.nuget/packages/newtonsoft.json/13.0.3/newtonsoft.json.13.0.3.nupkg.sha512",
     "/Users/linlifan/.nuget/packages/pipelines.sockets.unofficial/2.2.0/pipelines.sockets.unofficial.2.2.0.nupkg.sha512",
     "/Users/linlifan/.nuget/packages/stackexchange.redis/2.2.4/stackexchange.redis.2.2.4.nupkg.sha512",
     "/Users/linlifan/.nuget/packages/system.configuration.configurationmanager/5.0.0/system.configuration.configurationmanager.5.0.0.nupkg.sha512",

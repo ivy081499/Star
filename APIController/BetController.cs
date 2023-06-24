@@ -14,6 +14,8 @@ using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.Extensions.Caching.Distributed;
 using System.Text;
 using StackExchange.Redis;
+using Newtonsoft.Json;
+using System.Net;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -39,7 +41,7 @@ namespace Star.APIController
         }
 
         [HttpGet]
-        public BetViewModel Get()
+        public BetViewModel GetSelectList()
         {
             List<BookieViewModel> bookieList = new List<BookieViewModel>();
 
@@ -60,7 +62,7 @@ namespace Star.APIController
         }
 
         [HttpPost]
-        public ResponseModel Bet(BetRequestModel request)
+        public async Task<ResponseModel> Bet(BetRequestModel request)
         {
 
             bool result = ResolveStringHelper.CheckBetContent(request.BetContent, out List<Column> columns);
@@ -70,8 +72,29 @@ namespace Star.APIController
                 return new ResponseModel() { IsSuccess = false, Message = "數入文字格式不正確", };
             }
 
-            //todo
-            
+            string redisKey = $"{request.Date.ToString("yyyy-MM-dd")}:{request.CustomerName}:{request.Bookie}";
+
+            Customer customer = _customerSettings.CustomerList.First(o => o.Name == request.CustomerName);
+
+            CustomerBet customerBet = await GetCustomerBetFromRedis(redisKey);
+            customerBet.BookieText = request.Bookie.ToString();
+            customerBet.Bookie = request.Bookie;
+            customerBet.Customer = customer;
+            customerBet.Date = request.Date;
+            customerBet.PaperNumber = request.PaperNumber;
+            customerBet.BetInfoList.Add(new BetInfo()
+            {
+                ColumnList = columns,
+                FourStarOdds = request.FourStarOdds,
+                ThreeStarOdds = request.ThreeStarOdds,
+                TwoStarOdds = request.TwoStarOdds,
+                Id = DateTime.Now.ToString("yyyyMMddHHmmss"),
+                BetContent = request.BetContent.Replace("X","x").Replace("x"," x "),
+            });
+
+            customerBet.BetStatistics = CountingHelper.GetBetStatistics(customerBet.BetInfoList, customerBet.CarSetInfoList, customer);
+
+            await _database.StringSetAsync(redisKey, JsonConvert.SerializeObject(customerBet), CountingHelper.Range);
 
             return new ResponseModel() { IsSuccess = true, };
 
@@ -79,60 +102,136 @@ namespace Star.APIController
 
         [HttpPost]
         [Route("CarSetBet")]
-        public ResponseModel CarSetBet(CarSetRequestModel request)
+        public async Task<ResponseModel> CarSetBet(CarSetRequestModel request)
         {
-            //todo
+            string redisKey = $"{request.Date.ToString("yyyy-MM-dd")}:{request.CustomerName}:{request.Bookie}";
+
+            Customer customer = _customerSettings.CustomerList.First(o => o.Name == request.CustomerName);
+
+            CustomerBet customerBet = await GetCustomerBetFromRedis(redisKey);
+            customerBet.BookieText = request.Bookie.ToString();
+            customerBet.Bookie = request.Bookie;
+            customerBet.Customer = customer;
+            customerBet.Date = request.Date;
+            customerBet.PaperNumber = request.PaperNumber;
+            customerBet.CarSetInfoList.Add(new CarSetInfo()
+            {
+                Id = DateTime.Now.ToString("yyyyMMddHHmmss"),
+                carSetNumber = request.CarSetNumber,
+                Odds = request.Odds,
+            });
+
+            customerBet.BetStatistics = CountingHelper.GetBetStatistics(customerBet.BetInfoList, customerBet.CarSetInfoList, customer);
+
+            await _database.StringSetAsync(redisKey, JsonConvert.SerializeObject(customerBet), CountingHelper.Range);
+
             return new ResponseModel() { IsSuccess = true, };
 
         }
 
 
         [HttpDelete]
-        public bool Delete(int id)
+        public async Task<bool> Delete(DeleteRecordRequestModel request)
         {
-            //todo
-            return true;
+            bool isSuccess = false;
+
+            BookieType bookie = (BookieType)request.Bookie;
+
+            string redisKey = $"{request.Date.ToString("yyyy-MM-dd")}:{request.CustomerName}:{bookie.ToString()}";
+
+            CustomerBet customerBet = await GetCustomerBetFromRedis(redisKey);
+
+            BetInfo? betInfo = customerBet.BetInfoList.SingleOrDefault(o => o.Id == request.Id);
+
+            if (betInfo != null)
+            {
+                int count = customerBet.BetInfoList.RemoveAll(o => o.Id == request.Id);
+                isSuccess = count > 0;
+            }
+
+            CarSetInfo? carSetInfo = customerBet.CarSetInfoList.FirstOrDefault(o => o.Id == request.Id);
+
+            if (carSetInfo != null)
+            {
+                int count = customerBet.CarSetInfoList.RemoveAll(o => o.Id == request.Id);
+
+                isSuccess = count > 0;
+            }
+
+            if (isSuccess)
+            {
+                await _database.StringSetAsync(redisKey, JsonConvert.SerializeObject(customerBet), CountingHelper.Range);
+            }
+
+            return isSuccess;
         }
 
         [HttpPost]
         [Route("GetCustomerBet")]
-        public CustomerBet GetCustomerBet(GetCustomerBetInfoModel model)
+        public async Task<List<CustomerBet>> GetCustomerBet(GetCustomerBetInfoModel model)
         {
-            //todo
-            List<BetInfo> betInfoList = new List<BetInfo>();
-            List<Column> columnList = new List<Column>();
-            columnList.Add(new Column() { Numbers = new int[] { 1, 2 }.ToList() });
-            columnList.Add(new Column() { Numbers = new int[] { 3, 4 }.ToList() });
-            betInfoList.Add(new BetInfo()
+            List<CustomerBet> result = new List<CustomerBet>();
+
+            string redisKey1 = $"{model.Date.ToString("yyyy-MM-dd")}:{model.CustomerName}:{BookieType.小惠}";
+
+            CustomerBet customerBet1 = await GetCustomerBetFromRedis(redisKey1);
+
+
+            if (customerBet1.BetInfoList.Any() || customerBet1.CarSetInfoList.Any())
             {
-                ColumnList = columnList,
-                TwoStarOdds = 0.5f,
-                ThreeStarOdds = 0.2f,
-                FourStarOdds = 0.1f,
-            });
+                result.Add(customerBet1);
+            }
 
-            List<CarSetInfo> carSetInfoList = new List<CarSetInfo>();
-            carSetInfoList.Add(new CarSetInfo()
+            string redisKey2 = $"{model.Date.ToString("yyyy-MM-dd")}:{model.CustomerName}:{BookieType.楊董}";
+
+            CustomerBet customerBet2 = await GetCustomerBetFromRedis(redisKey2);
+
+            if (customerBet2.BetInfoList.Any() || customerBet2.CarSetInfoList.Any())
             {
+                result.Add(customerBet2);
+            }
 
-                BallNumber = 5,
-                Odds = 0.3f,
-            });
 
-            CustomerBet customerBet = new CustomerBet()
-            {
-                Date = DateTime.Now,
-                BookieType = BookieType.小惠.ToString(),
-                Customer = _customerSettings.CustomerList[4],
-                TotalCarSet = 20,
-                TotalTwoStar = 15,
-                TotalThreeStar = 34,
-                TotalFourStar = 5,
-                BetInfoList = betInfoList,
-                CarSetInfoList = carSetInfoList,
-            };
+            return result;
 
-            return customerBet;
+            ////todo
+            //List<BetInfo> betInfoList = new List<BetInfo>();
+            //List<Column> columnList = new List<Column>();
+            //columnList.Add(new Column() { Numbers = new int[] { 1, 2 }.ToList() });
+            //columnList.Add(new Column() { Numbers = new int[] { 3, 4 }.ToList() });
+            //betInfoList.Add(new BetInfo()
+            //{
+            //    ColumnList = columnList,
+            //    TwoStarOdds = 0.5f,
+            //    ThreeStarOdds = 0.2f,
+            //    FourStarOdds = 0.1f,
+            //});
+
+            //List<CarSetInfo> carSetInfoList = new List<CarSetInfo>();
+            //carSetInfoList.Add(new CarSetInfo()
+            //{
+
+            //    carSetNumber = 5,
+            //    Odds = 0.3f,
+            //});
+
+            //CustomerBet customerBet = new CustomerBet()
+            //{
+            //    Date = DateTime.Now,
+            //    BookieType = BookieType.小惠.ToString(),
+            //    Customer = _customerSettings.CustomerList[4],
+            //    BetStatistics = new BetStatistics()
+            //    {
+            //        TotalCarSet = 20,
+            //        TotalTwoStar = 15,
+            //        TotalThreeStar = 34,
+            //        TotalFourStar = 5,
+            //    },
+            //    BetInfoList = betInfoList,
+            //    CarSetInfoList = carSetInfoList,
+            //};
+
+            //return customerBet;
         }
 
         [HttpPost]
@@ -142,6 +241,50 @@ namespace Star.APIController
             _database.StringSetAsync("yowko", "test", TimeSpan.FromSeconds(60), When.NotExists);
 
             return true;
+        }
+
+        [HttpPut]
+        [Route("ModifyBonus")]
+        public async Task<bool> ModifyBonus(ModifyBonusRequestModel request)
+        {
+            Calulate(request.Date, BookieType.小惠, request.CustomerName, request.TwoStarBonus1, request.ThreeStarBonus1, request.FourStarBonus1);
+            Calulate(request.Date, BookieType.楊董, request.CustomerName, request.TwoStarBonus2, request.ThreeStarBonus2, request.FourStarBonus2);
+            return true;
+        }
+
+        private async void Calulate(DateTime date, BookieType bookie, string CustomerName,
+            string TwoStarBonus1, string ThreeStarBonus1, string FourStarBonus1)
+        {
+            string redisKey = $"{date.ToString("yyyy-MM-dd")}:{CustomerName}:{bookie.ToString()}";
+            CustomerBet customerBet = await GetCustomerBetFromRedis(redisKey);
+
+            customerBet.BetStatistics.TwoStarBonus = TwoStarBonus1==null?0: float.Parse(TwoStarBonus1);
+            customerBet.BetStatistics.ThreeStarBonus = ThreeStarBonus1 == null ? 0 : float.Parse(ThreeStarBonus1);
+            customerBet.BetStatistics.FourStarBonus = FourStarBonus1 == null ? 0 : float.Parse(FourStarBonus1);
+
+            CountingHelper.Calculate(customerBet);
+
+            await _database.StringSetAsync(redisKey, JsonConvert.SerializeObject(customerBet), CountingHelper.Range);
+        }
+
+        private async Task<CustomerBet> GetCustomerBetFromRedis(string redisKey)
+        {
+            RedisValue data = await _database.StringGetAsync(redisKey);
+            CustomerBet customerBet;
+
+            if (data.HasValue)
+            {
+                customerBet = JsonConvert.DeserializeObject<CustomerBet>(data.ToString()) ?? new CustomerBet();
+            }
+            else
+            {
+                customerBet = new CustomerBet();
+            }
+
+            customerBet.BetInfoList ??= new List<BetInfo>();
+            customerBet.CarSetInfoList ??= new List<CarSetInfo>();
+
+            return customerBet;
         }
     }
 }

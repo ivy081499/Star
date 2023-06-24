@@ -1,2 +1,101 @@
-﻿@using Star.ViewModels
-@model TodayBetViewModel
+﻿<script src="~/lib/ScriptTemplate/BetInfo.js"></script>
+
+<div class="container">
+    <div class="col">
+        <div class="mb-3">
+            <label class="form-label">客戶</label>
+            <select class="form-control" id="customerSelect">
+                <option value="0">請選擇</option>
+            </select>
+        </div>
+    </div>
+</div>
+<div class="container">
+    <div class="col">
+        <div class="mb-3">
+            <button class="btn btn-info" type="button" id="enterBonusBtn" onclick="enterBonus()">調整中獎碰數</button>
+            <button class="btn btn-primary" type="button" id="modifyBtn" onclick="modify()" style="display:none;">確認</button>
+            <button class="btn btn- style=" display:none;"" type="button" id="cancelBtn" onclick="cancel()" style="display:none;">取消</button>
+        </div>
+    </div>
+</div>
+
+<div class="row text-center">
+    @*<div class="col">
+        <div class="mb-3">
+            <header id="dateHeader" class="h3"></header>
+        </div>
+    </div>*@
+</div>
+<div id="betDetails">
+</div>
+
+<script>$(function () {
+        $('#customerSelect').on('change', function () {
+            genertateDetailArea(getToday(), $(this).val());
+        });
+
+        $.ajax({
+            url: "api/Bet",
+            method: "GET"
+        }).done(function (data) {
+            //客戶清單
+            $.each(data.customerSettings.customerList, function (index, value) {
+                var option = document.createElement('option');
+                $(option).val(value.name).text(value.name);
+
+                $('#customerSelect').append(option);
+            });
+        });
+
+    });
+
+    function enterBonus() {
+        $('#enterBonusBtn').hide();
+        $('#modifyBtn').show();
+        $('#cancelBtn').show();
+
+        $('[data-bonus]').removeAttr('readonly');
+    }
+
+    function modify() {
+        $.ajax({
+            url: "/api/bet/ModifyBonus",
+            method: "PUT",
+            data: {
+                date: getToday(),
+                customerName: $('#customerSelect').val(),
+                twoStarBonus1: $('#twoStarBonusText1').val(),
+                threeStarBonus1: $('#threeStarBonusText1').val(),
+                fourStarBonus1: $('#fourStarBonusText1').val(),
+                twoStarBonus2: $('#twoStarBonusText2').val(),
+                threeStarBonus2: $('#threeStarBonusText2').val(),
+                fourStarBonus2: $('#fourStarBonusText2').val(),
+            }
+        }).done(function (data) {
+            if (data == true) {
+                alert('修改成功');
+
+                $('#enterBonusBtn').show();
+                $('#modifyBtn').hide();
+                $('#cancelBtn').hide();
+
+                genertateDetailArea(getToday(), $('#customerSelect').val());
+            } else {
+                alert('修改失敗');
+            }
+        });
+    }
+
+    function cancel() {
+        $('#enterBonusBtn').show();
+        $('#modifyBtn').hide();
+        $('#cancelBtn').hide();
+    }
+    function getToday() {
+        var today = new Date();
+
+
+        return `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`
+    }
+    </script>

@@ -10,7 +10,7 @@ namespace Star.Settings
         public int ThreeStarBonus = 57000;
         public int FourStarBonus = 750000;
 
-        public List<Customer> CustomerList { get; set; }
+        public List<Customer> CustomerList { get;  }
 
         public CustomerSettings()
         {

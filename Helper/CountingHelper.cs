@@ -1,5 +1,7 @@
 ﻿using System;
+using Star.Enums;
 using Star.Models;
+using Star.ResponseModel;
 using Star.ViewModels;
 
 namespace Star.Helper
@@ -94,6 +96,11 @@ namespace Star.Helper
                 TotalFourStar = totalFourStar.ToString("n2"),
                 TotalCarSet = totalCarSet.ToString("n2"),
                 TotalBetDollars = TotalBetDollars,
+                WinLoseDollars = TotalBetDollars,
+                FourStarBonus = 0,
+                TwoStarBonus = 0,
+                ThreeStarBonus = 0,
+                TotalBonusDollars = 0,
             };
 
 

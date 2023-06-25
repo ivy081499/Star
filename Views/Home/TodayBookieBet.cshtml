@@ -1,0 +1,31 @@
+﻿<script src="~/js/common.js"></script>
+
+<div class="container">
+    <div class="col">
+        <div class="mb-3">
+            <label class="form-label">組頭</label>
+            <select class="form-control" id="bookieSelect">
+                <option value="0">請選擇</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<div id="betDetails">
+</div>
+
+<script>$(function () {
+        $('#bookieSelect').on('change', function () {
+            $.ajax({
+                url: "/api/bet/",
+                method: "GET",
+                data: {
+                    date: getToday(),
+                    bookie: $('#bookieSelect').val(),
+                },
+            }).done(function (data) {
+
+            });
+        });
+
+    });</script>

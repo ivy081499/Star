@@ -9,6 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddSingleton<CustomerSettings>();
+builder.Services.AddSingleton<BookieSettings>();
 //builder.Services.AddStackExchangeRedisCache(options =>
 //{
 //    options.Configuration = "localhost:6379,password=";
@@ -37,7 +38,7 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=TodayBet}");
+    pattern: "{controller=Home}/{action=TodayBookieBet}");
 
 
 app.Run();

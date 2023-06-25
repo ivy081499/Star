@@ -1,14 +1,13 @@
 ﻿using System;
 namespace Star.Response
 {
-    public class ResponseModel
+    public class BaseResponseModel
     {
         public bool IsSuccess { get; set; }
         public string Message { get; set; }
-        public string Data { get; set; }
     }
 
-    public class ResponseModel<T>
+    public class BaseResponseModel<T>
     {
         public bool IsSuccess { get; set; }
         public string Message { get; set; }

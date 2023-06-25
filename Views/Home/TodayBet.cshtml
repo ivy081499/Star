@@ -1,4 +1,5 @@
 ﻿<script src="~/lib/ScriptTemplate/BetInfo.js"></script>
+<script src="~/js/common.js"></script>
 
 <div class="container">
     <div class="col">
@@ -18,14 +19,6 @@
             <button class="btn btn- style=" display:none;"" type="button" id="cancelBtn" onclick="cancel()" style="display:none;">取消</button>
         </div>
     </div>
-</div>
-
-<div class="row text-center">
-    @*<div class="col">
-        <div class="mb-3">
-            <header id="dateHeader" class="h3"></header>
-        </div>
-    </div>*@
 </div>
 <div id="betDetails">
 </div>
@@ -91,11 +84,5 @@
         $('#enterBonusBtn').show();
         $('#modifyBtn').hide();
         $('#cancelBtn').hide();
-    }
-    function getToday() {
-        var today = new Date();
-
-
-        return `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`
     }
     </script>

@@ -40,7 +40,8 @@ public class HomeController : Controller
     }
 
 
-    public IActionResult Redis() {
+    public IActionResult Redis()
+    {
         return View();
 
     }
@@ -48,11 +49,14 @@ public class HomeController : Controller
     public IActionResult TodayBet()
     {
         TodayBetViewModel model = new TodayBetViewModel();
-    //todo   
-
         return View(model);
     }
 
+
+    public IActionResult TodayBookieBet()
+    {
+        return View();
+    }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()

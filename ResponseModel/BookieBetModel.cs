@@ -7,7 +7,7 @@ namespace Star.ResponseModel
     {
         public DateTime Date { get; set; }
         public List<BookiePaper> BookiePapaerList { get; set; }
-        public int WinLoseDollars { get; set; }
+        public Report DailyReport { get; set; }
     }
 
     public class BookiePaper
@@ -18,7 +18,7 @@ namespace Star.ResponseModel
 
         public List<CarSetInfo> CarSetInfoList { get; set; }
 
-        public BetStatistics BetStatistics { get; set; }
+        public Report PaperReport { get; set; }
     }
 }
 

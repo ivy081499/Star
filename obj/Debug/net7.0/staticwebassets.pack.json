@@ -13,16 +13,16 @@
       "PackagePath": "staticwebassets/favicon.ico"
     },
     {
+      "Id": "/Users/linlifan/Desktop/Star/Star/Star/wwwroot/js/BetInfo.js",
+      "PackagePath": "staticwebassets/js/BetInfo.js"
+    },
+    {
       "Id": "/Users/linlifan/Desktop/Star/Star/Star/wwwroot/js/common.js",
       "PackagePath": "staticwebassets/js/common.js"
     },
     {
       "Id": "/Users/linlifan/Desktop/Star/Star/Star/wwwroot/js/site.js",
       "PackagePath": "staticwebassets/js/site.js"
-    },
-    {
-      "Id": "/Users/linlifan/Desktop/Star/Star/Star/wwwroot/lib/ScriptTemplate/BetInfo.js",
-      "PackagePath": "staticwebassets/lib/ScriptTemplate/BetInfo.js"
     },
     {
       "Id": "/Users/linlifan/Desktop/Star/Star/Star/wwwroot/lib/bootstrap/LICENSE",

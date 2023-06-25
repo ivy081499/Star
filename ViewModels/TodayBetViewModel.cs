@@ -5,7 +5,7 @@ namespace Star.ViewModels
     {
         public DateTime Today { get; set; }
 
-        public List<CustomerBet> CustomerBetList { get; set; }
+        public List<CustomerDailyBet> CustomerBetList { get; set; }
     }
 }
 

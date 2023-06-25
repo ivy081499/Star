@@ -15,17 +15,34 @@
 </div>
 
 <script>$(function () {
+        initSelect();
+
         $('#bookieSelect').on('change', function () {
             $.ajax({
-                url: "/api/bet/",
-                method: "GET",
+                url: "/api/bet/GetBookieBet",
+                method: "POST",
                 data: {
                     date: getToday(),
                     bookie: $('#bookieSelect').val(),
                 },
             }).done(function (data) {
-
+                console.log(data)
             });
         });
 
-    });</script>
+    });
+
+    function initSelect() {
+        $.ajax({
+            url: "/api/Bet",
+            method: "GET"
+        }).done(function (data) {
+            //組頭清單
+            $.each(data.bookieList, function (index, value) {
+                $('#bookieSelect').append($('<option>', {
+                    value: value.value,
+                    text: value.name
+                }));
+            });
+        });
+    }</script>

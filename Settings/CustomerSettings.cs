@@ -10,153 +10,175 @@ namespace Star.Settings
         public int ThreeStarBonus = 57000;
         public int FourStarBonus = 750000;
 
-        public List<Customer> CustomerList { get;  }
+        public List<CustomerInfo> CustomerList { get; }
 
         public CustomerSettings()
         {
-            CustomerList = new List<Customer>();
+            CustomerList = new List<CustomerInfo>();
 
-            CustomerList.Add(new Customer()
+            CustomerList.Add(new CustomerInfo()
             {
-                LotteryType = LotteryType.Taiwan539,
                 Name = "小雲",
-                TwoStar = 77,
-                ThreeStar = 77,
-                FourStar = 77,
-                CarSet = 77,
-                TwoStarBonus = this.TwoStarBonus,
-                ThreeStarBonus = this.ThreeStarBonus,
-                FourStarBonus = this.FourStarBonus,
+                Cost539 = new CostDefinition()
+                {
+                    TwoStarPrice = 77,
+                    ThreeStarPrice = 77,
+                    FourStarPrice = 77,
+                    CarSetPrice = 77,
+                    TwoStarBonus = this.TwoStarBonus,
+                    ThreeStarBonus = this.ThreeStarBonus,
+                    FourStarBonus = this.FourStarBonus,
+                }
             });
 
-            CustomerList.Add(new Customer()
+            CustomerList.Add(new CustomerInfo()
             {
-                LotteryType = LotteryType.Taiwan539,
                 Name = "寶蓮",
-                TwoStar = 80,
-                ThreeStar = 80,
-                FourStar = 80,
-                CarSet = 80,
-                TwoStarBonus = this.TwoStarBonus,
-                ThreeStarBonus = this.ThreeStarBonus,
-                FourStarBonus = this.FourStarBonus,
+                Cost539 = new CostDefinition()
+                {
+                    TwoStarPrice = 80,
+                    ThreeStarPrice = 80,
+                    FourStarPrice = 80,
+                    CarSetPrice = 80,
+                    TwoStarBonus = this.TwoStarBonus,
+                    ThreeStarBonus = this.ThreeStarBonus,
+                    FourStarBonus = this.FourStarBonus,
+                }
             });
 
-            CustomerList.Add(new Customer()
+            CustomerList.Add(new CustomerInfo()
             {
-                LotteryType = LotteryType.Taiwan539,
                 Name = "羅老師",
-                TwoStar = 78,
-                ThreeStar = 78,
-                FourStar = 78,
-                CarSet = 78,
-                TwoStarBonus = this.TwoStarBonus,
-                ThreeStarBonus = this.ThreeStarBonus,
-                FourStarBonus = this.FourStarBonus,
+                Cost539 = new CostDefinition()
+                {
+                    TwoStarPrice = 78,
+                    ThreeStarPrice = 78,
+                    FourStarPrice = 78,
+                    CarSetPrice = 78,
+                    TwoStarBonus = this.TwoStarBonus,
+                    ThreeStarBonus = this.ThreeStarBonus,
+                    FourStarBonus = this.FourStarBonus,
+                }
             });
 
-            CustomerList.Add(new Customer()
+            CustomerList.Add(new CustomerInfo()
             {
-                LotteryType = LotteryType.Taiwan539,
                 Name = "宥炘",
-                TwoStar = 80,
-                ThreeStar = 70,
-                FourStar = 70,
-                CarSet = 80,
-                TwoStarBonus = this.TwoStarBonus,
-                ThreeStarBonus = this.ThreeStarBonus,
-                FourStarBonus = this.FourStarBonus,
+                Cost539 = new CostDefinition()
+                {
+                    TwoStarPrice = 80,
+                    ThreeStarPrice = 70,
+                    FourStarPrice = 70,
+                    CarSetPrice = 80,
+                    TwoStarBonus = this.TwoStarBonus,
+                    ThreeStarBonus = this.ThreeStarBonus,
+                    FourStarBonus = this.FourStarBonus,
+                }
             });
 
-            CustomerList.Add(new Customer()
+            CustomerList.Add(new CustomerInfo()
             {
-                LotteryType = LotteryType.Taiwan539,
                 Name = "呂小姐",
-                TwoStar = 80,
-                ThreeStar = 80,
-                FourStar = 80,
-                CarSet = 80,
-                TwoStarBonus = this.TwoStarBonus,
-                ThreeStarBonus = this.ThreeStarBonus,
-                FourStarBonus = this.FourStarBonus,
+                Cost539 = new CostDefinition()
+                {
+                    TwoStarPrice = 80,
+                    ThreeStarPrice = 80,
+                    FourStarPrice = 80,
+                    CarSetPrice = 80,
+                    TwoStarBonus = this.TwoStarBonus,
+                    ThreeStarBonus = this.ThreeStarBonus,
+                    FourStarBonus = this.FourStarBonus,
+                }
             });
 
-            CustomerList.Add(new Customer()
+            CustomerList.Add(new CustomerInfo()
             {
-                LotteryType = LotteryType.Taiwan539,
                 Name = "阿枝兄",
-                TwoStar = 80,
-                ThreeStar = 80,
-                FourStar = 80,
-                CarSet = 80,
-                TwoStarBonus = this.TwoStarBonus,
-                ThreeStarBonus = this.ThreeStarBonus,
-                FourStarBonus = this.FourStarBonus,
+                Cost539 = new CostDefinition()
+                {
+                    TwoStarPrice = 80,
+                    ThreeStarPrice = 80,
+                    FourStarPrice = 80,
+                    CarSetPrice = 80,
+                    TwoStarBonus = this.TwoStarBonus,
+                    ThreeStarBonus = this.ThreeStarBonus,
+                    FourStarBonus = this.FourStarBonus,
+                }
             });
 
-            CustomerList.Add(new Customer()
+            CustomerList.Add(new CustomerInfo()
             {
-                LotteryType = LotteryType.Taiwan539,
                 Name = "楊大哥",
-                TwoStar = 80,
-                ThreeStar = 80,
-                FourStar = 80,
-                CarSet = 80,
-                TwoStarBonus = this.TwoStarBonus,
-                ThreeStarBonus = this.ThreeStarBonus,
-                FourStarBonus = this.FourStarBonus,
+                Cost539 = new CostDefinition()
+                {
+                    TwoStarPrice = 80,
+                    ThreeStarPrice = 80,
+                    FourStarPrice = 80,
+                    CarSetPrice = 80,
+                    TwoStarBonus = this.TwoStarBonus,
+                    ThreeStarBonus = this.ThreeStarBonus,
+                    FourStarBonus = this.FourStarBonus,
+                }
             });
 
-            CustomerList.Add(new Customer()
+            CustomerList.Add(new CustomerInfo()
             {
-                LotteryType = LotteryType.Taiwan539,
                 Name = "誠",
-                TwoStar = 80,
-                ThreeStar = 80,
-                FourStar = 80,
-                CarSet = 80,
-                TwoStarBonus = this.TwoStarBonus,
-                ThreeStarBonus = this.ThreeStarBonus,
-                FourStarBonus = this.FourStarBonus,
+                Cost539 = new CostDefinition()
+                {
+                    TwoStarPrice = 80,
+                    ThreeStarPrice = 80,
+                    FourStarPrice = 80,
+                    CarSetPrice = 80,
+                    TwoStarBonus = this.TwoStarBonus,
+                    ThreeStarBonus = this.ThreeStarBonus,
+                    FourStarBonus = this.FourStarBonus,
+                }
             });
 
-            CustomerList.Add(new Customer()
+            CustomerList.Add(new CustomerInfo()
             {
-                LotteryType = LotteryType.Taiwan539,
                 Name = "阿順",
-                TwoStar = 80,
-                ThreeStar = 80,
-                FourStar = 80,
-                CarSet = 80,
-                TwoStarBonus = this.TwoStarBonus,
-                ThreeStarBonus = this.ThreeStarBonus,
-                FourStarBonus = this.FourStarBonus,
+                Cost539 = new CostDefinition()
+                {
+                    TwoStarPrice = 80,
+                    ThreeStarPrice = 80,
+                    FourStarPrice = 80,
+                    CarSetPrice = 80,
+                    TwoStarBonus = this.TwoStarBonus,
+                    ThreeStarBonus = this.ThreeStarBonus,
+                    FourStarBonus = this.FourStarBonus,
+                }
             });
 
-            CustomerList.Add(new Customer()
+            CustomerList.Add(new CustomerInfo()
             {
-                LotteryType = LotteryType.Taiwan539,
                 Name = "可可",
-                TwoStar = 80,
-                ThreeStar = 80,
-                FourStar = 80,
-                CarSet = 80,
-                TwoStarBonus = this.TwoStarBonus,
-                ThreeStarBonus = this.ThreeStarBonus,
-                FourStarBonus = this.FourStarBonus,
+                Cost539 = new CostDefinition()
+                {
+                    TwoStarPrice = 80,
+                    ThreeStarPrice = 80,
+                    FourStarPrice = 80,
+                    CarSetPrice = 80,
+                    TwoStarBonus = this.TwoStarBonus,
+                    ThreeStarBonus = this.ThreeStarBonus,
+                    FourStarBonus = this.FourStarBonus,
+                }
             });
 
-            CustomerList.Add(new Customer()
+            CustomerList.Add(new CustomerInfo()
             {
-                LotteryType = LotteryType.Taiwan539,
                 Name = "阿芬",
-                TwoStar = 78,
-                ThreeStar = 78,
-                FourStar = 78,
-                CarSet = 78,
-                TwoStarBonus = this.TwoStarBonus,
-                ThreeStarBonus = this.ThreeStarBonus,
-                FourStarBonus = this.FourStarBonus,
+                Cost539 = new CostDefinition()
+                {
+                    TwoStarPrice = 78,
+                    ThreeStarPrice = 78,
+                    FourStarPrice = 78,
+                    CarSetPrice = 78,
+                    TwoStarBonus = this.TwoStarBonus,
+                    ThreeStarBonus = this.ThreeStarBonus,
+                    FourStarBonus = this.FourStarBonus,
+                }
             });
 
         }

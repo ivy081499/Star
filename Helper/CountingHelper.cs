@@ -2,6 +2,7 @@
 using Star.Enums;
 using Star.Models;
 using Star.ResponseModel;
+using Star.Settings;
 using Star.ViewModels;
 
 namespace Star.Helper
@@ -10,54 +11,22 @@ namespace Star.Helper
     {
         public static TimeSpan Range = TimeSpan.FromDays(30);
 
-        public static void Calculate(CustomerBet customerBet)
+        public static void ReCalulateReport(Report report, CostDefinition costDefinition)
         {
+            int TotalBonusMoney = Convert.ToInt32(
+                report.TwoStarBonus * costDefinition.TwoStarBonus +
+                report.ThreeStarBonus * costDefinition.ThreeStarBonus +
+                report.FourStarBonus * costDefinition.FourStarBonus);
 
-            int carSetBase = customerBet.Customer.LotteryType switch
-            {
-                Enums.LotteryType.Taiwan539 => 38,
-                Enums.LotteryType.TaiwanLottery => 48,
-                Enums.LotteryType.HK => 48,
-                _ => 0,
-            };
-
-            float totalTwoStar = 0;
-            float totalThreeStar = 0;
-            float totalFourStar = 0;
-            float totalCarSet = 0;
-
-            customerBet.BetInfoList.ForEach((betInfo) =>
-            {
-                totalTwoStar += GenerateCombinations(betInfo.ColumnList, 2) * betInfo.TwoStarOdds;
-                totalThreeStar += GenerateCombinations(betInfo.ColumnList, 3) * betInfo.ThreeStarOdds;
-                totalFourStar += GenerateCombinations(betInfo.ColumnList, 4) * betInfo.FourStarOdds;
-
-            });
-
-            customerBet.CarSetInfoList.ForEach((carSet) =>
-            {
-                totalCarSet += (carSet.Odds * carSetBase);
-            });
-
-            int TotalBetDollars = Convert.ToInt32(
-                totalTwoStar * customerBet.Customer.TwoStar +
-                totalThreeStar * customerBet.Customer.ThreeStar +
-                totalFourStar * customerBet.Customer.FourStar +
-                totalCarSet * customerBet.Customer.CarSet);
-
-            int toalBonusDollars = Convert.ToInt32(
-                customerBet.BetStatistics.TwoStarBonus * customerBet.Customer.TwoStarBonus +
-                customerBet.BetStatistics.ThreeStarBonus * customerBet.Customer.ThreeStarBonus +
-                customerBet.BetStatistics.FourStarBonus * customerBet.Customer.FourStarBonus);
-
-            customerBet.BetStatistics.TotalBetDollars = TotalBetDollars;
-            customerBet.BetStatistics.TotalBonusDollars = toalBonusDollars;
-            customerBet.BetStatistics.WinLoseDollars = toalBonusDollars - TotalBetDollars;
+            report.TotalBonusMoney = TotalBonusMoney;
+            report.WinLoseMoney = report.TotalBonusMoney - report.TotalBetMoney;
         }
 
-        public static BetStatistics GetBetStatistics(List<BetInfo> betInfos, List<CarSetInfo> carSetInfos, Customer customer)
+        public static Report GetDailyReport(IEnumerable<BetInfo> betInfos, IEnumerable<CarSetInfo> carSetInfos, CostDefinition costDefinition)
         {
-            int carSetBase = customer.LotteryType switch
+            LotteryType lotteryType = LotteryType.Taiwan539;
+
+            int carSetBase = lotteryType switch
             {
                 Enums.LotteryType.Taiwan539 => 38,
                 Enums.LotteryType.TaiwanLottery => 48,
@@ -65,12 +34,12 @@ namespace Star.Helper
                 _ => 0,
             };
 
-            float totalTwoStar = 0;
-            float totalThreeStar = 0;
-            float totalFourStar = 0;
-            float totalCarSet = 0;
+            double totalTwoStar = 0;
+            double totalThreeStar = 0;
+            double totalFourStar = 0;
+            double totalCarSet = 0;
 
-            betInfos.ForEach((betInfo) =>
+            betInfos.ToList().ForEach((betInfo) =>
             {
                 totalTwoStar += GenerateCombinations(betInfo.ColumnList, 2) * betInfo.TwoStarOdds;
                 totalThreeStar += GenerateCombinations(betInfo.ColumnList, 3) * betInfo.ThreeStarOdds;
@@ -78,29 +47,29 @@ namespace Star.Helper
 
             });
 
-            carSetInfos.ForEach((carSet) =>
+            carSetInfos.ToList().ForEach((carSet) =>
             {
                 totalCarSet += (carSet.Odds * carSetBase);
             });
 
             int TotalBetDollars = Convert.ToInt32(
-                totalTwoStar * customer.TwoStar +
-                totalThreeStar * customer.ThreeStar +
-                totalFourStar * customer.FourStar +
-                totalCarSet * customer.CarSet);
+                totalTwoStar * costDefinition.TwoStarPrice +
+                totalThreeStar * costDefinition.ThreeStarPrice +
+                totalFourStar * costDefinition.FourStarPrice +
+                totalCarSet * costDefinition.CarSetPrice);
 
-            BetStatistics result = new BetStatistics()
+            Report result = new Report()
             {
                 TotalTwoStar = totalTwoStar.ToString("n2"),
                 TotalThreeStar = totalThreeStar.ToString("n2"),
                 TotalFourStar = totalFourStar.ToString("n2"),
                 TotalCarSet = totalCarSet.ToString("n2"),
-                TotalBetDollars = TotalBetDollars,
-                WinLoseDollars = TotalBetDollars,
+                TotalBetMoney = TotalBetDollars,
+                WinLoseMoney = 0 - TotalBetDollars,
                 FourStarBonus = 0,
                 TwoStarBonus = 0,
                 ThreeStarBonus = 0,
-                TotalBonusDollars = 0,
+                TotalBonusMoney = 0,
             };
 
 

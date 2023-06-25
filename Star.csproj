@@ -33,9 +33,5 @@
     <Folder Include="ViewModels\" />
     <Folder Include="RequestModel\" />
     <Folder Include="ResponseModel\" />
-    <Folder Include="wwwroot\lib\ScriptTemplate\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Remove="wwwroot\lib\ScriptTemplate\" />
   </ItemGroup>
 </Project>

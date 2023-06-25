@@ -1,9 +1,11 @@
 ﻿using System;
+using Star.Enums;
+
 namespace Star.RequestModel
 {
 	public class GetBookieBetRequestModel
 	{
-		public int Bookie { get; set; }
+		public BookieType BookieType { get; set; }
 
 		public DateTime Date { get; set; }
 	}

@@ -10,13 +10,13 @@ using Star.Settings;
 using Star.ViewModels;
 using Star.Response;
 using Star.Models;
-using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.Extensions.Caching.Distributed;
 using System.Text;
 using StackExchange.Redis;
 using Newtonsoft.Json;
 using System.Net;
 using Star.ResponseModel;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -76,29 +76,26 @@ namespace Star.APIController
                 return new BaseResponseModel() { IsSuccess = false, Message = "數入文字格式不正確", };
             }
 
-            string redisKey = $"{request.Date.ToString("yyyy-MM-dd")}:{request.CustomerName}:{request.Bookie}";
+            CustomerDailyBet customerDailyBet = await GetCustomerDailyBetFromRedis(request.Date, $"{request.CustomerName}");
 
-            Customer customer = _customerSettings.CustomerList.First(o => o.Name == request.CustomerName);
-
-            CustomerBet customerBet = await GetCustomerBetFromRedis(redisKey);
-            customerBet.BookieText = request.Bookie.ToString();
-            customerBet.Bookie = request.Bookie;
-            customerBet.Customer = customer;
-            customerBet.Date = request.Date;
-            customerBet.PaperNumber = request.PaperNumber;
-            customerBet.BetInfoList.Add(new BetInfo()
+            customerDailyBet.BetInfoList.Add(new BetInfo()
             {
                 ColumnList = columns,
                 FourStarOdds = request.FourStarOdds,
                 ThreeStarOdds = request.ThreeStarOdds,
                 TwoStarOdds = request.TwoStarOdds,
                 Id = DateTime.Now.ToString("yyyyMMddHHmmss"),
-                BetContent = request.BetContent.Replace("X", "x").Replace("x", " x "),
+                BetContent = FormatBetContent(request.BetContent),
+                BookieType = request.Bookie,
+                PaperNumber = request.PaperNumber,
             });
 
-            customerBet.BetStatistics = CountingHelper.GetBetStatistics(customerBet.BetInfoList, customerBet.CarSetInfoList, customer);
+            CustomerInfo customer = _customerSettings.CustomerList.First(o => o.Name == request.CustomerName);
 
-            await _database.StringSetAsync(redisKey, JsonConvert.SerializeObject(customerBet), CountingHelper.Range);
+            customerDailyBet.DailyReport = CountingHelper.GetDailyReport(customerDailyBet.BetInfoList, customerDailyBet.CarSetInfoList, customer.Cost539);
+
+            await SetCustomerDailyBetToRedis(request.Date, customerDailyBet);
+
 
             return new BaseResponseModel() { IsSuccess = true, };
 
@@ -108,29 +105,22 @@ namespace Star.APIController
         [Route("CarSetBet")]
         public async Task<BaseResponseModel> CarSetBet(CarSetRequestModel request)
         {
-            string redisKey = $"{request.Date.ToString("yyyy-MM-dd")}:{request.CustomerName}:{request.Bookie}";
-
-            Customer customer = _customerSettings.CustomerList.First(o => o.Name == request.CustomerName);
-
-            CustomerBet customerBet = await GetCustomerBetFromRedis(redisKey);
-            customerBet.BookieText = request.Bookie.ToString();
-            customerBet.Bookie = request.Bookie;
-            customerBet.Customer = customer;
-            customerBet.Date = request.Date;
-            customerBet.PaperNumber = request.PaperNumber;
-            customerBet.CarSetInfoList.Add(new CarSetInfo()
+            CustomerDailyBet customerDailyBet = await GetCustomerDailyBetFromRedis(request.Date, request.CustomerName);
+            customerDailyBet.Date = request.Date.ToString("yyyy-MM-dd");
+            customerDailyBet.CarSetInfoList.Add(new CarSetInfo()
             {
                 Id = DateTime.Now.ToString("yyyyMMddHHmmss"),
-                carSetNumber = request.CarSetNumber,
+                CarSetNumber = request.CarSetNumber,
                 Odds = request.Odds,
             });
 
-            customerBet.BetStatistics = CountingHelper.GetBetStatistics(customerBet.BetInfoList, customerBet.CarSetInfoList, customer);
+            CustomerInfo customer = _customerSettings.CustomerList.First(o => o.Name == request.CustomerName);
 
-            await _database.StringSetAsync(redisKey, JsonConvert.SerializeObject(customerBet), CountingHelper.Range);
+            customerDailyBet.DailyReport = CountingHelper.GetDailyReport(customerDailyBet.BetInfoList, customerDailyBet.CarSetInfoList, customer.Cost539);
+
+            await SetCustomerDailyBetToRedis(request.Date, customerDailyBet);
 
             return new BaseResponseModel() { IsSuccess = true, };
-
         }
 
 
@@ -141,30 +131,30 @@ namespace Star.APIController
 
             BookieType bookie = (BookieType)request.Bookie;
 
-            string redisKey = $"{request.Date.ToString("yyyy-MM-dd")}:{request.CustomerName}:{bookie.ToString()}";
+            CustomerDailyBet customerDailyBet = await GetCustomerDailyBetFromRedis(request.Date, request.CustomerName);
 
-            CustomerBet customerBet = await GetCustomerBetFromRedis(redisKey);
-
-            BetInfo? betInfo = customerBet.BetInfoList.SingleOrDefault(o => o.Id == request.Id);
+            BetInfo? betInfo = customerDailyBet.BetInfoList.SingleOrDefault(o => o.Id == request.Id);
 
             if (betInfo != null)
             {
-                int count = customerBet.BetInfoList.RemoveAll(o => o.Id == request.Id);
+                int count = customerDailyBet.BetInfoList.RemoveAll(o => o.Id == request.Id);
                 isSuccess = count > 0;
             }
 
-            CarSetInfo? carSetInfo = customerBet.CarSetInfoList.FirstOrDefault(o => o.Id == request.Id);
+            CarSetInfo? carSetInfo = customerDailyBet.CarSetInfoList.FirstOrDefault(o => o.Id == request.Id);
 
             if (carSetInfo != null)
             {
-                int count = customerBet.CarSetInfoList.RemoveAll(o => o.Id == request.Id);
+                int count = customerDailyBet.CarSetInfoList.RemoveAll(o => o.Id == request.Id);
 
                 isSuccess = count > 0;
             }
 
             if (isSuccess)
             {
-                await _database.StringSetAsync(redisKey, JsonConvert.SerializeObject(customerBet), CountingHelper.Range);
+                customerDailyBet.DailyReport = CountingHelper.GetDailyReport(customerDailyBet.BetInfoList, customerDailyBet.CarSetInfoList, customerDailyBet.Customer.Cost539);
+
+                await SetCustomerDailyBetToRedis(request.Date, customerDailyBet);
             }
 
             return isSuccess;
@@ -172,70 +162,10 @@ namespace Star.APIController
 
         [HttpPost]
         [Route("GetCustomerBet")]
-        public async Task<List<CustomerBet>> GetCustomerBet(GetCustomerBetInfoModel model)
+        public async Task<CustomerDailyBet> GetCustomerBet(GetCustomerBetInfoModel model)
         {
-            List<CustomerBet> result = new List<CustomerBet>();
-
-            string redisKey1 = $"{model.Date.ToString("yyyy-MM-dd")}:{model.CustomerName}:{BookieType.小惠}";
-
-            CustomerBet customerBet1 = await GetCustomerBetFromRedis(redisKey1);
-
-
-            if (customerBet1.BetInfoList.Any() || customerBet1.CarSetInfoList.Any())
-            {
-                result.Add(customerBet1);
-            }
-
-            string redisKey2 = $"{model.Date.ToString("yyyy-MM-dd")}:{model.CustomerName}:{BookieType.楊董}";
-
-            CustomerBet customerBet2 = await GetCustomerBetFromRedis(redisKey2);
-
-            if (customerBet2.BetInfoList.Any() || customerBet2.CarSetInfoList.Any())
-            {
-                result.Add(customerBet2);
-            }
-
-
+            CustomerDailyBet result = await GetCustomerDailyBetFromRedis(model.Date, model.CustomerName);
             return result;
-
-            ////todo
-            //List<BetInfo> betInfoList = new List<BetInfo>();
-            //List<Column> columnList = new List<Column>();
-            //columnList.Add(new Column() { Numbers = new int[] { 1, 2 }.ToList() });
-            //columnList.Add(new Column() { Numbers = new int[] { 3, 4 }.ToList() });
-            //betInfoList.Add(new BetInfo()
-            //{
-            //    ColumnList = columnList,
-            //    TwoStarOdds = 0.5f,
-            //    ThreeStarOdds = 0.2f,
-            //    FourStarOdds = 0.1f,
-            //});
-
-            //List<CarSetInfo> carSetInfoList = new List<CarSetInfo>();
-            //carSetInfoList.Add(new CarSetInfo()
-            //{
-
-            //    carSetNumber = 5,
-            //    Odds = 0.3f,
-            //});
-
-            //CustomerBet customerBet = new CustomerBet()
-            //{
-            //    Date = DateTime.Now,
-            //    BookieType = BookieType.小惠.ToString(),
-            //    Customer = _customerSettings.CustomerList[4],
-            //    BetStatistics = new BetStatistics()
-            //    {
-            //        TotalCarSet = 20,
-            //        TotalTwoStar = 15,
-            //        TotalThreeStar = 34,
-            //        TotalFourStar = 5,
-            //    },
-            //    BetInfoList = betInfoList,
-            //    CarSetInfoList = carSetInfoList,
-            //};
-
-            //return customerBet;
         }
 
         [HttpPost]
@@ -251,129 +181,128 @@ namespace Star.APIController
         [Route("ModifyBonus")]
         public async Task<bool> ModifyBonus(ModifyBonusRequestModel request)
         {
-            Calulate(request.Date, BookieType.小惠, request.CustomerName, request.TwoStarBonus1, request.ThreeStarBonus1, request.FourStarBonus1);
-            Calulate(request.Date, BookieType.楊董, request.CustomerName, request.TwoStarBonus2, request.ThreeStarBonus2, request.FourStarBonus2);
+            CustomerInfo customerInfo = _customerSettings.CustomerList.Single(o => o.Name == request.CustomerName);
+
+            CustomerDailyBet customerDailyBet = await GetCustomerDailyBetFromRedis(request.Date, request.CustomerName);
+
+            customerDailyBet.DailyReport.TwoStarBonus = Convert.ToDouble(request.TwoStarBonus);
+            customerDailyBet.DailyReport.ThreeStarBonus = Convert.ToDouble(request.ThreeStarBonus);
+            customerDailyBet.DailyReport.FourStarBonus = Convert.ToDouble(request.FourStarBonus);
+
+            CountingHelper.ReCalulateReport(customerDailyBet.DailyReport, customerInfo.Cost539);
+
+            await SetCustomerDailyBetToRedis(request.Date,customerDailyBet);
+
             return true;
         }
 
-        [HttpGet]
+        [HttpPost]
+        [Route("GetBookieBet")]
         public async Task<BookieBetModel> GetBookieBet(GetBookieBetRequestModel request)
         {
+
+            BookieInfo bookieInfo = _bookieSettings.BookieSettingList.First(o => o.BookieType == (BookieType)request.BookieType);
+
+            List<CustomerDailyBet> customerBetList = await GetCustomerDailyBetListFromRedis(request.Date);
+
+            IEnumerable<BetInfo> totalBetInfoList = new List<BetInfo>();
+            IEnumerable<CarSetInfo> totalCarSetInfoList = new List<CarSetInfo>();
+            IEnumerable<int> paperNumberList = new List<int>();
+
+            foreach (CustomerDailyBet customerDailyBet in customerBetList)
+            {
+                totalBetInfoList = totalBetInfoList.Concat(customerDailyBet.BetInfoList.Where(o => o.BookieType == request.BookieType));
+                totalCarSetInfoList = totalCarSetInfoList.Concat(customerDailyBet.CarSetInfoList.Where(o => o.BookieType == request.BookieType));
+            }
+
+            paperNumberList = totalBetInfoList.Select(o => o.PaperNumber).Concat(totalCarSetInfoList.Select(o => o.PaperNumber)).Distinct().Order();
+
+            List<BookiePaper> BookiePapaerList = new List<BookiePaper>();
+
+            foreach (int pagerNumber in paperNumberList)
+            {
+                IEnumerable<BetInfo> betInfoList = totalBetInfoList.Where(o => o.PaperNumber == pagerNumber);
+                IEnumerable<CarSetInfo> carSetInfoList = totalCarSetInfoList.Where(o => o.PaperNumber == pagerNumber);
+
+                BookiePapaerList.Add(new BookiePaper()
+                {
+                    PaperNumber = pagerNumber,
+                    BetInfoList = betInfoList.ToList(),
+                    CarSetInfoList = carSetInfoList.ToList(),
+                    PaperReport = CountingHelper.GetDailyReport(betInfoList, carSetInfoList, bookieInfo.Cost539),
+                });
+            }
+
             BookieBetModel result = new BookieBetModel()
             {
                 Date = request.Date,
-                BookiePapaerList = new List<BookiePaper>(),
+                BookiePapaerList = BookiePapaerList,
+                DailyReport = CountingHelper.GetDailyReport(totalBetInfoList, totalCarSetInfoList, bookieInfo.Cost539),
             };
-
-            BookieSetting bookieSetting = _bookieSettings.BookieSettingList.First(o => o.BookieType == (BookieType)request.Bookie);
-
-            string redisKey = $"{request.Date.ToString("yyyy-MM-dd")}";
-
-            List<CustomerBet> customerBetList = await GetCustomerBetListFromRedis(redisKey);
-
-            var paperNumbers = customerBetList
-                .Where(o => o.Bookie == (BookieType)request.Bookie)
-                .GroupBy(o => o.PaperNumber);
-
-            foreach (var paperNumberData in paperNumbers)
-            {
-                IEnumerable<BetInfo> BetInfoList = new List<BetInfo>();
-                paperNumberData
-                    .Select(o => o.BetInfoList).ToList()
-                    .ForEach(o => BetInfoList = BetInfoList.Concat(o));
-
-                IEnumerable<CarSetInfo> CarSetInfoList = new List<CarSetInfo>();
-                paperNumberData
-                    .Select(o => o.CarSetInfoList).ToList()
-                    .ForEach(o => CarSetInfoList = CarSetInfoList.Concat(o));
-
-                BookiePaper bookiePaper = new BookiePaper()
-                {
-                    PaperNumber = paperNumberData.Key,
-                    BetInfoList = BetInfoList.ToList(),
-                    CarSetInfoList = CarSetInfoList.ToList(),
-                    BetStatistics = new BetStatistics()
-                    {
-                        TotalTwoStar = paperNumberData.Sum(o => float.Parse(o.BetStatistics.TotalTwoStar)).ToString("0.##"),
-                        TotalThreeStar = paperNumberData.Sum(o => float.Parse(o.BetStatistics.TotalThreeStar)).ToString("0.##"),
-                        TotalFourStar = paperNumberData.Sum(o => float.Parse(o.BetStatistics.TotalFourStar)).ToString("0.##"),
-                        TotalCarSet = paperNumberData.Sum(o => float.Parse(o.BetStatistics.TotalCarSet)).ToString("0.##"),
-                        FourStarBonus = 0,
-                        TwoStarBonus =0,
-                        ThreeStarBonus =0,
-                        TotalBonusDollars = 0,
-                    },
-                };
-
-                int TotalBetDollars = Convert.ToInt32(
-                    bookiePaper.BetStatistics.TwoStarBonus +
-                    bookiePaper.BetStatistics.ThreeStarBonus +
-                    bookiePaper.BetStatistics.FourStarBonus +
-                    bookiePaper.BetStatistics.TotalCarSet);
-
-                bookiePaper.BetStatistics.TotalBetDollars = TotalBetDollars;
-                bookiePaper.BetStatistics.WinLoseDollars = TotalBetDollars;
-
-                result.BookiePapaerList.Add(bookiePaper);
-            }
-
-
-            result.WinLoseDollars = result.BookiePapaerList.Sum(o => o.BetStatistics.WinLoseDollars);
 
             return result;
 
         }
 
-        private async void Calulate(DateTime date, BookieType bookie, string CustomerName,
-            string TwoStarBonus1, string ThreeStarBonus1, string FourStarBonus1)
+        private async Task<List<CustomerDailyBet>> GetCustomerDailyBetListFromRedis(DateTime date)
         {
-            string redisKey = $"{date.ToString("yyyy-MM-dd")}:{CustomerName}:{bookie.ToString()}";
-            CustomerBet customerBet = await GetCustomerBetFromRedis(redisKey);
+            List<CustomerDailyBet> result = new List<CustomerDailyBet>();
 
-            customerBet.BetStatistics.TwoStarBonus = TwoStarBonus1 == null ? 0 : float.Parse(TwoStarBonus1);
-            customerBet.BetStatistics.ThreeStarBonus = ThreeStarBonus1 == null ? 0 : float.Parse(ThreeStarBonus1);
-            customerBet.BetStatistics.FourStarBonus = FourStarBonus1 == null ? 0 : float.Parse(FourStarBonus1);
+            HashEntry[] list = await _database.HashGetAllAsync(date.ToString("yyyy-MM-dd"));
 
-            CountingHelper.Calculate(customerBet);
+            foreach (HashEntry data in list)
+            {
+                CustomerDailyBet customerDailyBet = JsonConvert.DeserializeObject<CustomerDailyBet>(data.Value.ToString());
+                customerDailyBet.BetInfoList ??= new List<BetInfo>();
+                customerDailyBet.CarSetInfoList ??= new List<CarSetInfo>();
 
-            await _database.StringSetAsync(redisKey, JsonConvert.SerializeObject(customerBet), CountingHelper.Range);
+                result.Add(customerDailyBet);
+            }
+
+            return result;
         }
 
-        private async Task<CustomerBet> GetCustomerBetFromRedis(string redisKey)
+        private async Task<CustomerDailyBet> GetCustomerDailyBetFromRedis(DateTime date, string customerName)
         {
-            RedisValue data = await _database.StringGetAsync(redisKey);
-            CustomerBet customerBet;
+            RedisValue data = await _database.HashGetAsync(date.ToString("yyyy-MM-dd"), customerName);
+            CustomerDailyBet customerDailyBet;
 
             if (data.HasValue)
             {
-                customerBet = JsonConvert.DeserializeObject<CustomerBet>(data.ToString()) ?? new CustomerBet();
+                customerDailyBet = JsonConvert.DeserializeObject<CustomerDailyBet>(data.ToString());
             }
             else
             {
-                customerBet = new CustomerBet();
+                CustomerInfo customer = _customerSettings.CustomerList.First(o => o.Name == customerName);
+
+                customerDailyBet = new CustomerDailyBet()
+                {
+                    BetInfoList = new List<BetInfo>(),
+                    CarSetInfoList = new List<CarSetInfo>(),
+                    Customer = customer,
+                    DailyReport = new Report(),
+                    Date = date.ToString("yyyy-MM-dd"),
+                };
             }
 
-            customerBet.BetInfoList ??= new List<BetInfo>();
-            customerBet.CarSetInfoList ??= new List<CarSetInfo>();
-
-            return customerBet;
+            return customerDailyBet;
         }
 
-        private async Task<List<CustomerBet>> GetCustomerBetListFromRedis(string redisKey)
+        private async Task SetCustomerDailyBetToRedis(DateTime date, CustomerDailyBet customerDailyBet)
         {
-            RedisValue data = await _database.StringGetAsync(redisKey);
-            List<CustomerBet> customerBetList;
+            HashEntry[] array = new HashEntry[] {
+                new HashEntry(customerDailyBet.Customer.Name, JsonConvert.SerializeObject(customerDailyBet))
+            };
 
-            if (data.HasValue)
-            {
-                customerBetList = JsonConvert.DeserializeObject<List<CustomerBet>>(data.ToString()) ?? new List<CustomerBet>();
-            }
-            else
-            {
-                customerBetList = new List<CustomerBet>();
-            }
+            await _database.HashSetAsync(date.ToString("yyyy-MM-dd"), array);
+        }
 
-            return customerBetList;
+        private string FormatBetContent(string value)
+        {
+            return value
+                .Replace("*", "x")
+                .Replace("X", "x")
+                .Replace("x", " x ");
         }
     }
 }

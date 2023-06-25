@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "il+qpa980QBYikenFtDxNMkbHuqyqs/JNM8rNvIQfEc=",
+  "Hash": "m26n6+BIryiP7C5/ue7TQy6i2FjRBPv7j+RjT96By1Y=",
   "Source": "Star",
   "BasePath": "_content/Star",
   "Mode": "Default",
@@ -83,6 +83,23 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot/favicon.ico"
+    },
+    {
+      "Identity": "/Users/linlifan/Desktop/Star/Star/Star/wwwroot/js/BetInfo.js",
+      "SourceId": "Star",
+      "SourceType": "Discovered",
+      "ContentRoot": "/Users/linlifan/Desktop/Star/Star/Star/wwwroot/",
+      "BasePath": "_content/Star",
+      "RelativePath": "js/BetInfo.js",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot/js/BetInfo.js"
     },
     {
       "Identity": "/Users/linlifan/Desktop/Star/Star/Star/wwwroot/js/common.js",
@@ -1409,23 +1426,6 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot/lib/jquery/LICENSE.txt"
-    },
-    {
-      "Identity": "/Users/linlifan/Desktop/Star/Star/Star/wwwroot/lib/ScriptTemplate/BetInfo.js",
-      "SourceId": "Star",
-      "SourceType": "Discovered",
-      "ContentRoot": "/Users/linlifan/Desktop/Star/Star/Star/wwwroot/",
-      "BasePath": "_content/Star",
-      "RelativePath": "lib/ScriptTemplate/BetInfo.js",
-      "AssetKind": "All",
-      "AssetMode": "All",
-      "AssetRole": "Primary",
-      "RelatedAsset": "",
-      "AssetTraitName": "",
-      "AssetTraitValue": "",
-      "CopyToOutputDirectory": "Never",
-      "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "wwwroot/lib/ScriptTemplate/BetInfo.js"
     }
   ]
 }

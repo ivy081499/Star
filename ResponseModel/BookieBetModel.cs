@@ -5,7 +5,7 @@ namespace Star.ResponseModel
 {
     public class BookieBetModel
     {
-        public DateTime Date { get; set; }
+        public string Date { get; set; }
         public List<BookiePaper> BookiePapaerList { get; set; }
         public Report DailyReport { get; set; }
     }

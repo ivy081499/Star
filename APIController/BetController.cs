@@ -80,6 +80,7 @@ namespace Star.APIController
 
             customerDailyBet.BetInfoList.Add(new BetInfo()
             {
+                CustomerName = request.CustomerName,
                 ColumnList = columns,
                 FourStarOdds = request.FourStarOdds,
                 ThreeStarOdds = request.ThreeStarOdds,
@@ -106,12 +107,15 @@ namespace Star.APIController
         public async Task<BaseResponseModel> CarSetBet(CarSetRequestModel request)
         {
             CustomerDailyBet customerDailyBet = await GetCustomerDailyBetFromRedis(request.Date, request.CustomerName);
-            customerDailyBet.Date = request.Date.ToString("yyyy-MM-dd");
+
             customerDailyBet.CarSetInfoList.Add(new CarSetInfo()
             {
                 Id = DateTime.Now.ToString("yyyyMMddHHmmss"),
                 CarSetNumber = request.CarSetNumber,
                 Odds = request.Odds,
+                BookieType = request.Bookie,
+                PaperNumber = request.PaperNumber,
+                CustomerName = request.CustomerName,                
             });
 
             CustomerInfo customer = _customerSettings.CustomerList.First(o => o.Name == request.CustomerName);
@@ -128,8 +132,6 @@ namespace Star.APIController
         public async Task<bool> Delete(DeleteRecordRequestModel request)
         {
             bool isSuccess = false;
-
-            BookieType bookie = (BookieType)request.Bookie;
 
             CustomerDailyBet customerDailyBet = await GetCustomerDailyBetFromRedis(request.Date, request.CustomerName);
 
@@ -191,7 +193,7 @@ namespace Star.APIController
 
             CountingHelper.ReCalulateReport(customerDailyBet.DailyReport, customerInfo.Cost539);
 
-            await SetCustomerDailyBetToRedis(request.Date,customerDailyBet);
+            await SetCustomerDailyBetToRedis(request.Date, customerDailyBet);
 
             return true;
         }
@@ -201,7 +203,7 @@ namespace Star.APIController
         public async Task<BookieBetModel> GetBookieBet(GetBookieBetRequestModel request)
         {
 
-            BookieInfo bookieInfo = _bookieSettings.BookieSettingList.First(o => o.BookieType == (BookieType)request.BookieType);
+            BookieInfo bookieInfo = _bookieSettings.BookieSettingList.First(o => o.BookieType == request.BookieType);
 
             List<CustomerDailyBet> customerBetList = await GetCustomerDailyBetListFromRedis(request.Date);
 
@@ -235,7 +237,7 @@ namespace Star.APIController
 
             BookieBetModel result = new BookieBetModel()
             {
-                Date = request.Date,
+                Date = request.Date.ToString("yyyy-MM-dd"),
                 BookiePapaerList = BookiePapaerList,
                 DailyReport = CountingHelper.GetDailyReport(totalBetInfoList, totalCarSetInfoList, bookieInfo.Cost539),
             };

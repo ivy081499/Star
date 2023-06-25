@@ -1,4 +1,4 @@
-﻿<script src="~/lib/ScriptTemplate/BetInfo.js"></script>
+﻿<script src="~/js/BetInfo.js"></script>
 <script src="~/js/common.js"></script>
 
 <div class="container">
@@ -29,7 +29,7 @@
         });
 
         $.ajax({
-            url: "api/Bet",
+            url: "/api/Bet",
             method: "GET"
         }).done(function (data) {
             //客戶清單
@@ -58,12 +58,9 @@
             data: {
                 date: getToday(),
                 customerName: $('#customerSelect').val(),
-                twoStarBonus1: $('#twoStarBonusText1').val(),
-                threeStarBonus1: $('#threeStarBonusText1').val(),
-                fourStarBonus1: $('#fourStarBonusText1').val(),
-                twoStarBonus2: $('#twoStarBonusText2').val(),
-                threeStarBonus2: $('#threeStarBonusText2').val(),
-                fourStarBonus2: $('#fourStarBonusText2').val(),
+                twoStarBonus: $('#twoStarBonusText').val(),
+                threeStarBonus: $('#threeStarBonusText').val(),
+                fourStarBonus: $('#fourStarBonusText').val(),
             }
         }).done(function (data) {
             if (data == true) {

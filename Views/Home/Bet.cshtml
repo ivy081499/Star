@@ -208,7 +208,7 @@
         }).done(function (result) {
             if (result.isSuccess === true) {
                 alert("下注成功");
-                genertateDetailArea($("#carSetNumber").val(), $('#customerSelect').val());
+                genertateDetailArea($("#datepicker").val(), $('#customerSelect').val());
             } else {
                 alert(data.message);
             }

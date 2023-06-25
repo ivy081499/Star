@@ -1,4 +1,5 @@
 ﻿<script src="~/js/common.js"></script>
+<script src="~/js/BetInfo.js"></script>
 
 <div class="container">
     <div class="col">
@@ -10,9 +11,13 @@
         </div>
     </div>
 </div>
-
 <div id="betDetails">
 </div>
+<hr class="hr" />
+<nav aria-label="..." data-pagination>
+    <ul class="pagination pagination-lg">
+    </ul>
+</nav>
 
 <script>$(function () {
         initSelect();
@@ -23,10 +28,33 @@
                 method: "POST",
                 data: {
                     date: getToday(),
-                    bookie: $('#bookieSelect').val(),
+                    bookieType: $('#bookieSelect').val(),
                 },
             }).done(function (data) {
-                console.log(data)
+                $('#betDetails').empty();
+
+                setReportView(data);
+
+                $.each(data.bookiePapaerList, function (index, paperData) {
+                    var li = document.createElement("li");
+
+                    $(li).addClass("page-item").on('click', function () {
+                        $('.page-item').removeClass('active');
+                        $(this).addClass('active');
+
+                        loadPageData(data.date, paperData);
+                    });
+
+                    var alink = document.createElement("a");
+                    $(alink).addClass("page-link").text(paperData.paperNumber);
+
+                    $(li).append(alink).addClass('active');
+                    $('.pagination').append(li);
+                });
+
+                if (data.bookiePapaerList.length > 0) {
+                    loadPageData(data.date, data.bookiePapaerList[0]);
+                }
             });
         });
 
@@ -45,4 +73,16 @@
                 }));
             });
         });
+    }
+
+    function loadPageData(date, data) {
+        data.date = date;
+
+        $('[data-betinfo-table]').remove();
+
+        var html = generateBetInfoTableTemplate();
+        $('nav[data-pagination]').after(html);
+
+        var table = $('[data-betinfo-table] table')
+        insertRows(table, data, null, false);
     }</script>

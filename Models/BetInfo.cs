@@ -5,6 +5,7 @@ namespace Star.Models
 {
     public class BaseBetInfo
     {
+        public string CustomerName { get; set; }
         public string Id { get; set; }
         public BookieType BookieType { get; set; }
         public string Bookie { get { return this.BookieType.ToString(); } }

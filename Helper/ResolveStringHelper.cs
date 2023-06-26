@@ -8,7 +8,7 @@ namespace Star.Helper
     {
         public static string SplitChar = "X";
 
-        public static Regex ResolveRegex = new Regex(@"(\d{2})+[Xx]+(.)+");
+        public static Regex ResolveRegex = new Regex(@"(\d{2})+[Xx*]+(.)+");
 
         public static bool CheckBetContent(string value, out List<Column> columns)
         {
@@ -19,7 +19,7 @@ namespace Star.Helper
                 return false;
             }
 
-            value = value.Replace("x", SplitChar);
+            value = value.Replace("x", SplitChar).Replace("*", SplitChar);
 
             List<string> columnStringList = value.Split(SplitChar).ToList();
 

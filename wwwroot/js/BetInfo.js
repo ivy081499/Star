@@ -34,39 +34,39 @@
             <div class="col">
                 <div class="mb-3">
                     <label class="form-label">支數總額</label>
-                    <input class="form-control readonly" type="number" readonly id="totalBetMoneyText" />
+                    <input class="form-control readonly" type="text" readonly id="totalBetMoneyText" />
                 </div>
             </div>
         </div>
         <div class="row">
             <div class="col">
                 <div class="mb-3">
-                    <label class="form-label">二星中獎碰數</label>
+                    <label class="form-label">二星中碰數</label>
                     <input class="form-control readonly" type="number" readonly id="twoStarBonusText" data-bonus />
                 </div>
             </div>
             <div class="col">
                 <div class="mb-3">
-                    <label class="form-label">三星中獎碰數</label>
+                    <label class="form-label">三星中碰數</label>
                     <input class="form-control readonly" type="number" readonly id="threeStarBonusText" data-bonus/>
                 </div>
             </div>
             <div class="col">
                 <div class="mb-3">
-                    <label class="form-label">四星中獎碰數</label>
+                    <label class="form-label">四星中碰數</label>
                     <input class="form-control readonly" type="number" readonly id="fourStarBonusText" data-bonus/>
                 </div>
             </div>
             <div class="col">
                 <div class="mb-3">
                     <label class="form-label">總獎金</label>
-                    <input class="form-control readonly" type="number" readonly id="totalBonusMoneyText" />
+                    <input class="form-control readonly" type="text" readonly id="totalBonusMoneyText" />
                 </div>
             </div>
             <div class="col">
                 <div class="mb-3">
                     <label class="form-label">總輸贏</label>
-                    <input class="form-control readonly" type="number" readonly id="winLoseMoneyText" />
+                    <input class="form-control readonly" type="text" readonly id="winLoseMoneyText" />
                 </div>
             </div>
         </div>

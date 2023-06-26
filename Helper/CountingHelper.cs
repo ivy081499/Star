@@ -18,8 +18,8 @@ namespace Star.Helper
                 report.ThreeStarBonus * costDefinition.ThreeStarBonus +
                 report.FourStarBonus * costDefinition.FourStarBonus);
 
-            report.TotalBonusMoney = TotalBonusMoney;
-            report.WinLoseMoney = report.TotalBonusMoney - report.TotalBetMoney;
+            report.TotalBonusMoney = TotalBonusMoney.ToString("N0");
+            report.WinLoseMoney = (TotalBonusMoney - Convert.ToInt32(report.TotalBetMoney)).ToString("N0");
         }
 
         public static Report GetDailyReport(IEnumerable<BetInfo> betInfos, IEnumerable<CarSetInfo> carSetInfos, CostDefinition costDefinition)
@@ -64,12 +64,12 @@ namespace Star.Helper
                 TotalThreeStar = totalThreeStar.ToString("n2"),
                 TotalFourStar = totalFourStar.ToString("n2"),
                 TotalCarSet = totalCarSet.ToString("n2"),
-                TotalBetMoney = TotalBetDollars,
-                WinLoseMoney = 0 - TotalBetDollars,
+                TotalBetMoney = TotalBetDollars.ToString("n0"),
+                WinLoseMoney = (0 - TotalBetDollars).ToString("n0"),
                 FourStarBonus = 0,
                 TwoStarBonus = 0,
                 ThreeStarBonus = 0,
-                TotalBonusMoney = 0,
+                TotalBonusMoney = 0.ToString("n0"),
             };
 
 

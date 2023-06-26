@@ -31,7 +31,7 @@
         <div class="col">
             <div class="mb-3">
                 <label class="form-label">二星賠率</label>
-                <input class="form-control" id="twoStarOdds" type="number" value="0.2" />
+                <input class="form-control" id="twoStarOdds" type="number" />
             </div>
         </div>
         <div class="col">
@@ -57,7 +57,7 @@
         <div class="col">
             <div class="mb-3">
                 <label class="form-label">投注內容</label>
-                <textarea class="form-control" id="sourceString">01x03.04x05.06</textarea>
+                <textarea class="form-control" id="sourceString"></textarea>
             </div>
         </div>
     </div>
@@ -163,12 +163,9 @@
             data: data
         }).done(function (result) {
             if (result.isSuccess === true) {
-                alert("下注成功");
+                //alert("下注成功");
 
-                $('#twoStarOdds').empty();
-                $('#threeStarOdds').empty();
-                $('#fourStarOdds').empty();
-                $('#customerBet').empty();
+                $('#sourceString').val('');
 
                 genertateDetailArea($('#datepicker').val(), $('#customerSelect').val());
             } else {
@@ -207,7 +204,9 @@
             data: data
         }).done(function (result) {
             if (result.isSuccess === true) {
-                alert("下注成功");
+                //alert("下注成功");
+                $('#carSetNumber').val('');
+
                 genertateDetailArea($("#datepicker").val(), $('#customerSelect').val());
             } else {
                 alert(data.message);

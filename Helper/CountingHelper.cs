@@ -1,7 +1,6 @@
 ﻿using System;
 using Star.Enums;
 using Star.Models;
-using Star.ResponseModel;
 using Star.Settings;
 using Star.ViewModels;
 
@@ -11,86 +10,89 @@ namespace Star.Helper
     {
         public static TimeSpan Range = TimeSpan.FromDays(30);
 
-        public static void ReCalulateReport(Report report, CostDefinition costDefinition)
+        public static void SetReport(Report report, CostDefinition costDefinition, List<PaperBet> paperBetList)
         {
-            int TotalBonusMoney = Convert.ToInt32(
-                report.TwoStarBonus * costDefinition.TwoStarBonus +
-                report.ThreeStarBonus * costDefinition.ThreeStarBonus +
-                report.FourStarBonus * costDefinition.FourStarBonus);
+            report ??= new Report();
 
-            report.TotalBonusMoney = TotalBonusMoney.ToString("N0");
-            report.WinLoseMoney = (TotalBonusMoney - Convert.ToInt32(report.TotalBetMoney)).ToString("N0");
+            double totalTwoStar = paperBetList.Sum(o => Convert.ToDouble(o.Report.TotalTwoStar));
+            double totalThreeStar = paperBetList.Sum(o => Convert.ToDouble(o.Report.TotalThreeStar));
+            double totalFourStar = paperBetList.Sum(o => Convert.ToDouble(o.Report.TotalFourStar));
+            double totalCarSet = paperBetList.Sum(o => Convert.ToDouble(o.Report.TotalCarSet));
+
+            report.TotalTwoStar = totalTwoStar.ToStarFormat();
+            report.TotalThreeStar = totalThreeStar.ToStarFormat();
+            report.TotalFourStar = totalFourStar.ToStarFormat();
+            report.TotalCarSet = totalCarSet.ToStarFormat();
+
+            int totalBetMoney = Convert.ToInt32(
+                totalTwoStar * costDefinition.TwoStarPrice +
+                totalThreeStar * costDefinition.ThreeStarPrice +
+                totalFourStar * costDefinition.FourStarPrice +
+                totalCarSet * costDefinition.CarSetPrice);
+
+            int totalBonusMoney = Convert.ToInt32(
+               report.TwoStarBonus * costDefinition.TwoStarBonus +
+               report.ThreeStarBonus * costDefinition.ThreeStarBonus +
+               report.FourStarBonus * costDefinition.FourStarBonus);
+
+            report.TotalBetMoney = totalBetMoney.ToString();
+            report.TotalBonusMoney = totalBonusMoney.ToString();
+            report.WinLoseMoney = (totalBonusMoney - Convert.ToInt32(totalBetMoney)).ToString("N0");
         }
 
-        public static Report GetDailyReport(IEnumerable<BetInfo> betInfos, IEnumerable<CarSetInfo> carSetInfos, CostDefinition costDefinition)
+        public static void SetReport(List<ColumnBet> SerialBetList, List<ColumnBet> ColumnBetList, List<CarBet> CarBetList,
+           Report report, CostDefinition costDefinition)
         {
-            LotteryType lotteryType = LotteryType.Taiwan539;
+            report ??= new Report();
 
-            int carSetBase = lotteryType switch
-            {
-                Enums.LotteryType.Taiwan539 => 38,
-                Enums.LotteryType.TaiwanLottery => 48,
-                Enums.LotteryType.HK => 48,
-                _ => 0,
-            };
+            int carSetBase = GetCarSetBase();
 
             double totalTwoStar = 0;
             double totalThreeStar = 0;
             double totalFourStar = 0;
             double totalCarSet = 0;
 
-            betInfos.ToList().ForEach((betInfo) =>
-            {
-                totalTwoStar += GenerateCombinations(betInfo.ColumnList, 2) * betInfo.TwoStarOdds;
-                totalThreeStar += GenerateCombinations(betInfo.ColumnList, 3) * betInfo.ThreeStarOdds;
-                totalFourStar += GenerateCombinations(betInfo.ColumnList, 4) * betInfo.FourStarOdds;
+            SerialBetList.ToList().ForEach(bet => Sum(bet, ref totalTwoStar, ref totalThreeStar, ref totalFourStar));
 
-            });
+            ColumnBetList.ToList().ForEach(bet => Sum(bet, ref totalTwoStar, ref totalThreeStar, ref totalFourStar));
 
-            carSetInfos.ToList().ForEach((carSet) =>
-            {
-                totalCarSet += (carSet.Odds * carSetBase);
-            });
+            CarBetList.ToList().ForEach((carSet) => { totalCarSet += carSet.OddsInfo.TwoStar * carSetBase; });
 
-            int TotalBetDollars = Convert.ToInt32(
+            int totalBetMoney = Convert.ToInt32(
                 totalTwoStar * costDefinition.TwoStarPrice +
                 totalThreeStar * costDefinition.ThreeStarPrice +
                 totalFourStar * costDefinition.FourStarPrice +
                 totalCarSet * costDefinition.CarSetPrice);
 
-            Report result = new Report()
-            {
-                TotalTwoStar = totalTwoStar.ToString("n2"),
-                TotalThreeStar = totalThreeStar.ToString("n2"),
-                TotalFourStar = totalFourStar.ToString("n2"),
-                TotalCarSet = totalCarSet.ToString("n2"),
-                TotalBetMoney = TotalBetDollars.ToString("n0"),
-                WinLoseMoney = (0 - TotalBetDollars).ToString("n0"),
-                FourStarBonus = 0,
-                TwoStarBonus = 0,
-                ThreeStarBonus = 0,
-                TotalBonusMoney = 0.ToString("n0"),
-            };
+            int totalBonusMoney = Convert.ToInt32(
+               report.TwoStarBonus * costDefinition.TwoStarBonus +
+               report.ThreeStarBonus * costDefinition.ThreeStarBonus +
+               report.FourStarBonus * costDefinition.FourStarBonus);
 
-
-            return result;
+            report.TotalTwoStar = totalTwoStar.ToStarFormat();
+            report.TotalThreeStar = totalThreeStar.ToStarFormat();
+            report.TotalFourStar = totalFourStar.ToStarFormat();
+            report.TotalCarSet = totalCarSet.ToStarFormat();
+            report.TotalBetMoney = totalBetMoney.ToString();
+            report.TotalBonusMoney = totalBonusMoney.ToString();
+            report.WinLoseMoney = (totalBonusMoney - Convert.ToInt32(totalBetMoney)).ToString("N0");
         }
 
-        public static int GenerateCombinations(List<Column> columns, int stars)
+        public static int GenerateCombinations(List<List<string>> columns, int stars)
         {
-            List<List<int>> combinations = new List<List<int>>();
-            HashSet<int[]> generatedCombinations = new HashSet<int[]>(new ArrayEqualityComparer<int>());
+            List<List<string>> combinations = new List<List<string>>();
+            HashSet<string[]> generatedCombinations = new HashSet<string[]>(new ArrayEqualityComparer<string>());
 
-            GenerateCombinationsHelper(columns, stars, new List<int>(), 0, combinations, generatedCombinations);
+            GenerateCombinationsHelper(columns, stars, new List<string>(), 0, combinations, generatedCombinations);
 
             return combinations.Count;
         }
 
-        static void GenerateCombinationsHelper(List<Column> columns, int count, List<int> currentCombination, int currentColumnIndex, List<List<int>> combinations, HashSet<int[]> generatedCombinations)
+        static void GenerateCombinationsHelper(List<List<string>> columns, int count, List<string> currentCombination, int currentColumnIndex, List<List<string>> combinations, HashSet<string[]> generatedCombinations)
         {
             if (currentCombination.Count == count)
             {
-                combinations.Add(new List<int>(currentCombination));
+                combinations.Add(new List<string>(currentCombination));
                 return;
             }
 
@@ -99,14 +101,14 @@ namespace Star.Helper
                 return;
             }
 
-            Column currentColumn = columns[currentColumnIndex];
+            List<string> currentColumn = columns[currentColumnIndex];
 
-            foreach (int num in currentColumn.Numbers)
+            foreach (string num in currentColumn)
             {
-                List<int> updatedCombination = new List<int>(currentCombination);
+                List<string> updatedCombination = new List<string>(currentCombination);
                 updatedCombination.Add(num);
 
-                int[] combinationArray = updatedCombination.ToArray();
+                string[] combinationArray = updatedCombination.ToArray();
                 if (!generatedCombinations.Contains(combinationArray))
                 {
                     generatedCombinations.Add(combinationArray);
@@ -115,6 +117,26 @@ namespace Star.Helper
             }
 
             GenerateCombinationsHelper(columns, count, currentCombination, currentColumnIndex + 1, combinations, generatedCombinations);
+        }
+
+        private static int GetCarSetBase()
+        {
+            LotteryType lotteryType = LotteryType.Taiwan539;
+
+            return lotteryType switch
+            {
+                Enums.LotteryType.Taiwan539 => 38,
+                Enums.LotteryType.TaiwanLottery => 48,
+                Enums.LotteryType.HK => 48,
+                _ => throw new Exception("LotteryType錯誤"),
+            };
+        }
+
+        private static void Sum(ColumnBet bet, ref double totalTwoStar, ref double totalThreeStar, ref double totalFourStar)
+        {
+            totalTwoStar += GenerateCombinations(bet.Content, 2) * bet.OddsInfo.TwoStar;
+            totalThreeStar += GenerateCombinations(bet.Content, 3) * bet.OddsInfo.ThreeStar;
+            totalFourStar += GenerateCombinations(bet.Content, 4) * bet.OddsInfo.FourStar;
         }
     }
 
@@ -151,7 +173,10 @@ namespace Star.Helper
             }
         }
 
+
     }
+
+
 
 }
 

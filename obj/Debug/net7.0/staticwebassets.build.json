@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "m26n6+BIryiP7C5/ue7TQy6i2FjRBPv7j+RjT96By1Y=",
+  "Hash": "jDbIK35e3sSVZBwx6sgMzIypdY7y3tdWg9OSt1TUyp8=",
   "Source": "Star",
   "BasePath": "_content/Star",
   "Mode": "Default",
@@ -83,6 +83,23 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot/favicon.ico"
+    },
+    {
+      "Identity": "/Users/linlifan/Desktop/Star/Star/Star/wwwroot/js/BetComponent.js",
+      "SourceId": "Star",
+      "SourceType": "Discovered",
+      "ContentRoot": "/Users/linlifan/Desktop/Star/Star/Star/wwwroot/",
+      "BasePath": "_content/Star",
+      "RelativePath": "js/BetComponent.js",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot/js/BetComponent.js"
     },
     {
       "Identity": "/Users/linlifan/Desktop/Star/Star/Star/wwwroot/js/BetInfo.js",

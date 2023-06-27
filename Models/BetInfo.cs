@@ -5,40 +5,27 @@ namespace Star.Models
 {
     public class BaseBetInfo
     {
-        public string CustomerName { get; set; }
         public string Id { get; set; }
+        public string CustomerName { get; set; }
+        public string Date { get; set; }
         public BookieType BookieType { get; set; }
         public string Bookie { get { return this.BookieType.ToString(); } }
-        public int PaperNumber  { get; set; }
+        public int PaperNumber { get; set; }
+        public OddsInfo OddsInfo { get; set; }
+        public string RawContent { get; set; }
     }
 
-    /// <summary>
-    /// 單筆投注內容
-    /// </summary>
-	public class BetInfo : BaseBetInfo
+    //排碰、連碰
+    public class ColumnBet : BaseBetInfo
     {
-        public List<Column> ColumnList { get; set; }
-        public float TwoStarOdds { get; set; }
-        public float ThreeStarOdds { get; set; }
-        public float FourStarOdds { get; set; }
-        public string BetContent { get; set; }
+        public List<List<string>> Content { get; set; }
     }
 
-    /// <summary>
-    /// 單排
-    /// </summary>
-    public class Column
+    //車組
+    public class CarBet : BaseBetInfo
     {
-        /// <summary>
-        /// 單排內的數字清單
-        /// </summary>
-        public List<int> Numbers { get; set; }
+        public string Content { get; set; }
     }
 
-    public class CarSetInfo : BaseBetInfo
-    {
-        public int CarSetNumber { get; set; }
-        public float Odds { get; set; }
-    }
 }
 

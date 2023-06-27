@@ -33,9 +33,9 @@
             }).done(function (data) {
                 $('#betDetails').empty();
 
-                setReportView(data);
-
                 $.each(data.bookiePapaerList, function (index, paperData) {
+                    setReportView(paperData);
+
                     var li = document.createElement("li");
 
                     $(li).addClass("page-item").on('click', function () {

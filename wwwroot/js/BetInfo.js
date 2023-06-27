@@ -80,6 +80,7 @@ function generateBetInfoTableTemplate() {
        <table class="table mb-5">
             <thead>
                 <tr>
+                    <th scope="col">名字</th>
                     <th scope="col" class="w-70">內容</th>
                     <th scope="col">二星</th>
                     <th scope="col">三星</th>
@@ -96,12 +97,14 @@ function generateBetInfoTableTemplate() {
 
 function createTr(table, id, date, customerName, hasDeleteBtn) {
     var tr = document.createElement('tr');
+    var tdCustomerName = document.createElement('td');
     var tdContent = document.createElement('td');
     var tdTwoStarOdds = document.createElement('td');
     var tdThreeStarOdds = document.createElement('td');
     var tdFourStarOdds = document.createElement('td');
     var tdCarSetOdds = document.createElement('td');
 
+    $(tr).append(tdCustomerName);
     $(tr).append(tdContent);
     $(tr).append(tdTwoStarOdds);
     $(tr).append(tdThreeStarOdds);
@@ -229,10 +232,11 @@ function insertRows(table, data, bookie, hasDeleteBtn) {
         }
 
         var tr = createTr(table, info.id, data.date, info.customerName, hasDeleteBtn);
-        tr.children[0].innerHTML = info.betContent; //todo
-        tr.children[1].innerHTML = info.twoStarOdds;
-        tr.children[2].innerHTML = info.threeStarOdds;
-        tr.children[3].innerHTML = info.fourStarOdds;
+        tr.children[0].innerHTML = info.customerName;
+        tr.children[1].innerHTML = info.betContent; //todo
+        tr.children[2].innerHTML = info.twoStarOdds;
+        tr.children[3].innerHTML = info.threeStarOdds;
+        tr.children[4].innerHTML = info.fourStarOdds;
     });
 
     //車組
@@ -242,8 +246,9 @@ function insertRows(table, data, bookie, hasDeleteBtn) {
         }
 
         var tr = createTr(table, carSetInfo.id, data.date, carSetInfo.customerName, hasDeleteBtn);
-        tr.children[0].innerHTML = carSetInfo.carSetNumber;
-        tr.children[4].innerHTML = carSetInfo.odds;
+        tr.children[0].innerHTML = carSetInfo.customerName;
+        tr.children[1].innerHTML = carSetInfo.carSetNumber;
+        tr.children[5].innerHTML = carSetInfo.odds;
     });
 
 }
